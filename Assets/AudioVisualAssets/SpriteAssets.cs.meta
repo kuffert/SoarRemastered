@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: 7f486475b015c7e43bc7d6ab30d47aa2
-timeCreated: 1449811366
+timeCreated: 1450156207
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - coin: {fileID: 21300000, guid: 6dc0ad8fb0ef0b446b2d1ba126f2a563, type: 3}
+  - leftCliff: {fileID: 21300000, guid: 4775c0cbaa38e9146b6aa69c6ab97526, type: 3}
+  - rightCliff: {fileID: 21300000, guid: 0c6d76112e066424aae8ec4244a9ab0f, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

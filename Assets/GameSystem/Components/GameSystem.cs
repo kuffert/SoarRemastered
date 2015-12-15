@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class GameSystem : MonoBehaviour {
     public GameObject player;
     public GameObject scoreText;
+    public GameObject finalScoreText;
     public GameObject restartText;
     public GameObject mainMenuText;
     public int maxCollidables;
@@ -21,6 +22,7 @@ public class GameSystem : MonoBehaviour {
 
     private int currentThreshhold;
     private float currentSpawnRate;
+    private float timePassed;
     private Vector3 currentSpeed;
     private int score;
     private bool gameOver;
@@ -30,6 +32,15 @@ public class GameSystem : MonoBehaviour {
     void Awake ()
     {
         collidables = new List<Collidable>();
+
+        // Places all text at screen-fitting positions.
+        scoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .95f, 10f));
+        finalScoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .9f, 10f));
+        restartText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
+        mainMenuText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
+
+        // Places the player at a screen-fitting position.
+        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .05f, 10f));
     }
 
 	void Start ()
@@ -38,20 +49,28 @@ public class GameSystem : MonoBehaviour {
         currentSpawnRate = initialSpawnRate;
         currentSpeed = initialSpeed;
         currentThreshhold = initialThreshold;
+        score = 0;
+        updateScore();
 	}
 	
 	void Update ()
     {
         if (gameOver)
         {
-            displayGameOverTexts();
             delegateNavigationFromTouch();
+            return;
         }
-	}
+        updateScore();
+        spawnCollidables();
+        moveCollidables();
+        removeOutOfBoundsCollidables();
+        checkCollisions();
+        increaseDifficulty();
+    }
 
     #endregion Startup And Update
 
-    #region Accesssors
+    #region Accesssors and Public Functionality
 
     /// <summary>
     /// Removes the given collidable from the Game System's private
@@ -98,36 +117,131 @@ public class GameSystem : MonoBehaviour {
         return currentThreshhold;
     }
 
-    #endregion Accessors
+    /// <summary>
+    /// Enables the end of game. This displays and adds interactability with 
+    /// navigational buttons, and sets the state of the game to ended.
+    /// </summary>
+    public void enableGameOver()
+    {
+        gameOver = true;
+        //currentSpeed = new Vector3(0f, 0f, 0f);
+        scoreText.GetComponent<TextMesh>().text = "Game Over";
+        finalScoreText.GetComponent<TextMesh>().text = "Final Score: " + score;
+        finalScoreText.AddComponent<BoxCollider>();
+        restartText.GetComponent<TextMesh>().text = "Restart";
+        restartText.AddComponent<BoxCollider>();
+        mainMenuText.GetComponent<TextMesh>().text = "Main Menu:";
+        mainMenuText.AddComponent<BoxCollider>();
+    }
+
+    #endregion Accessors and Public Functionality
+
+    #region Game System Functionality
+
+    /// <summary>
+    /// Displays the player's current score.
+    /// </summary>
+    private void updateScore()
+    {
+        scoreText.GetComponent<TextMesh>().text = "Score: " + score;
+    }
+
+    /// <summary>
+    /// Increase the game difficulty based on the user's score
+    /// </summary>
+    private void increaseDifficulty()
+    {
+        //TODO: Increase difficulty based on score
+    }
+
+    /// <summary>
+    /// Detects if there are any collisions between player and collidables. If there
+    /// is, apply the effect of that collidable.
+    /// </summary>
+    private void checkCollisions()
+    {
+        Bounds playerBounds = player.GetComponent<BoxCollider>().bounds;
+        foreach(Collidable collidable in collidables)
+        {
+            if (collidable.collidableGameObject.GetComponent<BoxCollider>().bounds.Intersects(playerBounds))
+            {
+                collidable.applyEffect(this);
+            }
+        }
+    }
+
+    #endregion Game System Functionality
 
     #region Collidable Management
 
     /// <summary>
+    /// Spawns new collidables according to Game System constrains.
+    /// </summary>
+    private void spawnCollidables()
+    {
+        if (collidables.Count <= maxCollidables && Time.time >= timePassed)
+        {
+            timePassed += currentSpawnRate;
+            Collidable.generateCollidable(this);
+        }
+    }
+
+
+    /// <summary>
     /// Moves all collidable objects by the current speed.
     /// </summary>
-    public void moveCollidables()
-    {
+    private void moveCollidables()
+    {   
         foreach(Collidable collidable in collidables)
         {
-            collidable.move(currentSpeed);
+            collidable.move(currentSpeed * Time.deltaTime);
         }
     }
 
     /// <summary>
     /// Destroys any collidables that have gone out of bounds.
     /// </summary>
-    public void removeOutOfBoundsCollidables()
+    private void removeOutOfBoundsCollidables()
     {
-        foreach(Collidable collidable in collidables)
+        for (int i = 0; i < collidables.Count; i++)
         {
-            if (collidable.outOfBounds())
+            if (collidables[i].outOfBounds())
             {
-                Destroy(collidable.collidableGameObject);
-                collidables.Remove(collidable);
+                Destroy(collidables[i].collidableGameObject);
+                collidables.Remove(collidables[i]);
+                i--;
             }
         }
     }
 
     #endregion Collidable Management
+
+    #region Endgame
+
+    /// <summary>
+    /// Detects user input and navigates according to the button they've pressed.
+    /// </summary>
+    private void delegateNavigationFromTouch()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (restartText.GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
+            {
+                // Need to save here
+                Application.LoadLevel("GameScene");
+            }
+
+            if (mainMenuText.GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
+            {
+                // Need to save here
+                Application.LoadLevel("MainMenu");
+            }
+        }
+    }
+
+    #endregion Endgame
 
 }

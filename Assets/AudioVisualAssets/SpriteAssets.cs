@@ -9,4 +9,8 @@ public class SpriteAssets : MonoBehaviour {
     public Sprite leftCliff;
     public Sprite rightCliff;
 
+    public void Awake()
+    {
+        spriteAssets = this;
+    }
 }

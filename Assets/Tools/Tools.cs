@@ -13,7 +13,7 @@ public static class Tools {
     /// <returns></returns>
     public static Vector3 calculateRandomXVector()
     {
-        float xLoc = Random.Range(0, 10) / 10f;
+        float xLoc = Random.Range(1, 9) / 10f;
         return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.1f, 10f));
     }
 
@@ -45,5 +45,15 @@ public static class Tools {
     {
         float xLoc = Random.Range(95, 105) / 100f;
         return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.1f, 10f));
+    }
+
+    /// <summary>
+    /// Constructs a worldpoint vector3 from a viewport vector.
+    /// </summary>
+    /// <param name="viewportVector">The viewport vector to be converted.</param>
+    /// <returns></returns>
+    public static Vector3 calculateWorldLocationFromViewportVector(Vector3 viewportVector)
+    {
+        return Camera.main.ViewportToWorldPoint(viewportVector);
     }
 }

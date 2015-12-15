@@ -92,7 +92,7 @@ public class Coin : Collidable
         collidableGameObject = new GameObject();
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.coin;
         collidableGameObject.transform.position = Tools.calculateRandomXVector();
-        collidableGameObject.AddComponent<BoxCollider>();
+        collidableGameObject.AddComponent<BoxCollider>().size = new Vector3(.3f, .5f, 1f);
     }
 
     /// <summary>
@@ -122,10 +122,14 @@ public class LeftCliff : Collidable
     public LeftCliff(Vector3 scale)
     {
         collidableGameObject = new GameObject();
+        collidableGameObject.transform.localScale = scale;
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.leftCliff;
         collidableGameObject.transform.position = Tools.calculateLeftSpawnVector();
-        collidableGameObject.transform.localScale = scale;
-        collidableGameObject.AddComponent<BoxCollider>();
+        BoxCollider boxCollider = collidableGameObject.AddComponent<BoxCollider>();
+        Vector3 boxColliderSize = collidableGameObject.GetComponent<BoxCollider>().size;
+        boxCollider.size = new Vector3(boxColliderSize.x, .7f, 1f);
+        boxCollider.center = new Vector3(0f, -.05f, 0f);
+        
     }
 
     /// <summary>
@@ -136,7 +140,7 @@ public class LeftCliff : Collidable
     public void applyEffect(GameSystem gameSystem)
     {
         // TODO: Play Collision Audio
-        gameSystem.endGame();
+        gameSystem.enableGameOver();
     }
 }
 
@@ -152,10 +156,13 @@ public class RightCliff : Collidable
     public RightCliff(Vector3 scale)
     {
         collidableGameObject = new GameObject();
+        collidableGameObject.transform.localScale = scale;
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.rightCliff;
         collidableGameObject.transform.position = Tools.calculateRightSpawnVector();
-        collidableGameObject.transform.localScale = scale;
-        collidableGameObject.AddComponent<BoxCollider>();
+        BoxCollider boxCollider = collidableGameObject.AddComponent<BoxCollider>();
+        Vector3 boxColliderSize = collidableGameObject.GetComponent<BoxCollider>().size;
+        boxCollider.size = new Vector3(boxColliderSize.x, .7f, 1f);
+        boxCollider.center = new Vector3(0f, -.05f, 0f);
     }
 
     /// <summary>
@@ -165,8 +172,8 @@ public class RightCliff : Collidable
     override
     public void applyEffect(GameSystem gameSystem)
     {
-        // set gameOver to true;
         // Play Collision Audio
+        gameSystem.enableGameOver();
     }
 }
 
