@@ -17,8 +17,8 @@ public abstract class Collidable {
     {
         int thresholdRange = gameSystem.thresholdRange;
         int threshold = gameSystem.threshold();
-        float yMin = gameSystem.minYCliffScale;
-        float yMax = gameSystem.maxYCliffScale;
+        float yMin = gameSystem.minXCliffScale;
+        float yMax = gameSystem.maxXCliffScale;
 
         bool spawnCoin = Random.Range(0, thresholdRange) < threshold;
 
@@ -32,15 +32,15 @@ public abstract class Collidable {
         bool spawnDoubleCliffs = Random.Range(0, thresholdRange) >= threshold;
         if (spawnDoubleCliffs)
         {
-            Vector3 leftCliffScale = Tools.calculateRandomYScale(yMin, yMax);
-            Vector3 rightCliffScale = new Vector3(1f, 2f - leftCliffScale.y, 1f);
+            Vector3 leftCliffScale = Tools.calculateRandomXScale(yMin, yMax);
+            Vector3 rightCliffScale = new Vector3(2f - (gameSystem.getCurrentCliffGap()) - leftCliffScale.x, 1f, 1f);
             gameSystem.addCollidable(new LeftCliff(leftCliffScale));
             gameSystem.addCollidable(new RightCliff(rightCliffScale));
             return;
         }
 
         int cliffSelector = Random.Range(0, 1);
-        Vector3 cliffScale = Tools.calculateRandomYScale(yMin, yMax);
+        Vector3 cliffScale = Tools.calculateRandomXScale(yMin, yMax);
         switch (cliffSelector)
         {
             case 0:
@@ -59,7 +59,7 @@ public abstract class Collidable {
     /// <param name="gameSystem">
     /// The affected Game System.
     /// </param>
-    public abstract void applyEffect(GameSystem gameSystem);
+    public abstract void applyEffect(GameSystem gameSystem, int indexOfCollidable);
 
     /// <summary>
     /// Determines if this Collidable has gone out of bounds.
@@ -93,6 +93,7 @@ public class Coin : Collidable
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.coin;
         collidableGameObject.transform.position = Tools.calculateRandomXVector();
         collidableGameObject.AddComponent<BoxCollider>().size = new Vector3(.3f, .5f, 1f);
+        collidableGameObject.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.COLLIDABLELAYER;
     }
 
     /// <summary>
@@ -101,11 +102,12 @@ public class Coin : Collidable
     /// </summary>
     /// <param name="gameSystem">The affected Game System.</param>
     override
-    public void applyEffect(GameSystem gameSystem)
+    public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
         // TODO: Play CoinGet Audio
-        MonoBehaviour.Destroy(collidableGameObject);
         gameSystem.removeCollidable(this);
+        MonoBehaviour.Destroy(collidableGameObject);
+        indexOfCollidable--;
         gameSystem.increaseScore();
     }
 }
@@ -124,12 +126,13 @@ public class LeftCliff : Collidable
         collidableGameObject = new GameObject();
         collidableGameObject.transform.localScale = scale;
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.leftCliff;
-        collidableGameObject.transform.position = Tools.calculateLeftSpawnVector();
+        collidableGameObject.transform.position = Tools.calculateLeftSpawnVector(collidableGameObject);
         BoxCollider boxCollider = collidableGameObject.AddComponent<BoxCollider>();
         Vector3 boxColliderSize = collidableGameObject.GetComponent<BoxCollider>().size;
         boxCollider.size = new Vector3(boxColliderSize.x, .7f, 1f);
         boxCollider.center = new Vector3(0f, -.05f, 0f);
-        
+        collidableGameObject.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.COLLIDABLELAYER;
+
     }
 
     /// <summary>
@@ -137,7 +140,7 @@ public class LeftCliff : Collidable
     /// </summary>
     /// <param name="gameSystem">The affected Game System.</param>
     override
-    public void applyEffect(GameSystem gameSystem)
+    public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
         // TODO: Play Collision Audio
         gameSystem.enableGameOver();
@@ -158,11 +161,12 @@ public class RightCliff : Collidable
         collidableGameObject = new GameObject();
         collidableGameObject.transform.localScale = scale;
         collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.rightCliff;
-        collidableGameObject.transform.position = Tools.calculateRightSpawnVector();
+        collidableGameObject.transform.position = Tools.calculateRightSpawnVector(collidableGameObject);
         BoxCollider boxCollider = collidableGameObject.AddComponent<BoxCollider>();
         Vector3 boxColliderSize = collidableGameObject.GetComponent<BoxCollider>().size;
         boxCollider.size = new Vector3(boxColliderSize.x, .7f, 1f);
         boxCollider.center = new Vector3(0f, -.05f, 0f);
+        collidableGameObject.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.COLLIDABLELAYER;
     }
 
     /// <summary>
@@ -170,7 +174,7 @@ public class RightCliff : Collidable
     /// </summary>
     /// <param name="gameSystem">The affected Game System.</param>
     override
-    public void applyEffect(GameSystem gameSystem)
+    public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
         // Play Collision Audio
         gameSystem.enableGameOver();

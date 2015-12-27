@@ -15,14 +15,17 @@ public class GameSystem : MonoBehaviour {
     public int initialThreshold;
     public float initialSpawnRate;
     public float maxSpawnRate;
-    public float minYCliffScale;
-    public float maxYCliffScale;
+    public float minXCliffScale;
+    public float maxXCliffScale;
+    public float minCliffGap;
+    public float maxCliffGap;
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
 
     private int currentThreshhold;
     private float currentSpawnRate;
     private float timePassed;
+    private float currentCliffGap;
     private Vector3 currentSpeed;
     private int score;
     private bool gameOver;
@@ -38,9 +41,13 @@ public class GameSystem : MonoBehaviour {
         finalScoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .9f, 10f));
         restartText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
         mainMenuText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
-
+        scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        mainMenuText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+    
         // Places the player at a screen-fitting position.
-        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .05f, 10f));
+        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .075f, 10f));
     }
 
 	void Start ()
@@ -49,6 +56,7 @@ public class GameSystem : MonoBehaviour {
         currentSpawnRate = initialSpawnRate;
         currentSpeed = initialSpeed;
         currentThreshhold = initialThreshold;
+        currentCliffGap = maxCliffGap;
         score = 0;
         updateScore();
 	}
@@ -71,6 +79,15 @@ public class GameSystem : MonoBehaviour {
     #endregion Startup And Update
 
     #region Accesssors and Public Functionality
+
+    /// <summary>
+    /// Retrieves the current gap between cliffs.
+    /// </summary>
+    /// <returns></returns>
+    public float getCurrentCliffGap()
+    {
+        return currentCliffGap;
+    }
 
     /// <summary>
     /// Removes the given collidable from the Game System's private
@@ -161,11 +178,12 @@ public class GameSystem : MonoBehaviour {
     private void checkCollisions()
     {
         Bounds playerBounds = player.GetComponent<BoxCollider>().bounds;
-        foreach(Collidable collidable in collidables)
+
+        for (int i = 0; i < collidables.Count; i++)
         {
-            if (collidable.collidableGameObject.GetComponent<BoxCollider>().bounds.Intersects(playerBounds))
+            if (collidables[i].collidableGameObject.GetComponent<BoxCollider>().bounds.Intersects(playerBounds))
             {
-                collidable.applyEffect(this);
+                collidables[i].applyEffect(this, i);
             }
         }
     }

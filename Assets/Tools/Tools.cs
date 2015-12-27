@@ -21,30 +21,32 @@ public static class Tools {
     /// Constructs a Vector3 with a random Y scale.
     /// </summary>
     /// <returns></returns>
-    public static Vector3 calculateRandomYScale(float minY, float maxY)
+    public static Vector3 calculateRandomXScale(float minX, float maxX)
     {
-        float yScale = Random.Range(minY*10f, maxY*10f) / 10f;
-        return new Vector3(1f, yScale, 1f);
+        float xScale = Random.Range(minX*10f, maxX*10f) / 10f;
+        return new Vector3(xScale, 1f, 1f);
     }
 
     /// <summary>
-    /// Constructs a Vector3 with a random Left-Side spawn location.
+    /// Constructs a Vector3 with a Left-Side spawn location.
     /// </summary>
     /// <returns></returns>
-    public static Vector3 calculateLeftSpawnVector()
+    public static Vector3 calculateLeftSpawnVector(GameObject cliff)
     {
-        float xLoc = Random.Range(-5, 5) / 100f;
-        return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.1f, 10f));
+        float xLoc = calculateSpriteOffsetX(cliff);
+        Vector3 viewportVector = Camera.main.ViewportToWorldPoint(new Vector3(0f, 1.1f, 10f));
+        return viewportVector + new Vector3(xLoc, 0f, 0f);
     }
 
     /// <summary>
-    /// Constructs a Vector3 with a random Right-Side spawn location.
+    /// Constructs a Vector3 with a Right-Side spawn location.
     /// </summary>
     /// <returns></returns>
-    public static Vector3 calculateRightSpawnVector()
+    public static Vector3 calculateRightSpawnVector(GameObject cliff)
     {
-        float xLoc = Random.Range(95, 105) / 100f;
-        return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.1f, 10f));
+        float xLoc = calculateSpriteOffsetX(cliff);
+        Vector3 viewportVector = Camera.main.ViewportToWorldPoint(new Vector3(1f, 1.1f, 10f));
+        return viewportVector - new Vector3(xLoc, 0f, 0f);
     }
 
     /// <summary>
@@ -55,5 +57,15 @@ public static class Tools {
     public static Vector3 calculateWorldLocationFromViewportVector(Vector3 viewportVector)
     {
         return Camera.main.ViewportToWorldPoint(viewportVector);
+    }
+
+    /// <summary>
+    /// Constructs a vector3 of the sprite's offset.
+    /// </summary>
+    /// <param name="sprite"></param>
+    /// <returns></returns>
+    public static float calculateSpriteOffsetX(GameObject cliff)
+    {
+        return cliff.GetComponent<SpriteRenderer>().sprite.bounds.size.x * cliff.GetComponent<SpriteRenderer>().transform.localScale.x / 2f;
     }
 }
