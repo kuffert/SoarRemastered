@@ -11,8 +11,8 @@ public class GameSystem : MonoBehaviour {
     public GameObject restartText;
     public GameObject mainMenuText;
     public int maxCollidables;
-    public int thresholdRange;
-    public int initialThreshold;
+    public float thresholdRange;
+    public float initialThreshold;
     public float initialSpawnRate;
     public float maxSpawnRate;
     public float minXCliffScale;
@@ -22,7 +22,7 @@ public class GameSystem : MonoBehaviour {
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
 
-    private int currentThreshhold;
+    private float currentThreshhold;
     private float currentSpawnRate;
     private float timePassed;
     private float currentCliffGap;
@@ -73,7 +73,6 @@ public class GameSystem : MonoBehaviour {
         moveCollidables();
         removeOutOfBoundsCollidables();
         checkCollisions();
-        increaseDifficulty();
     }
 
     #endregion Startup And Update
@@ -115,6 +114,7 @@ public class GameSystem : MonoBehaviour {
     public void increaseScore()
     {
         score++;
+        increaseDifficulty();
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public class GameSystem : MonoBehaviour {
     /// Retrieves the current threshold.
     /// </summary>
     /// <returns></returns>
-    public int threshold()
+    public float threshold()
     {
         return currentThreshhold;
     }
@@ -164,11 +164,23 @@ public class GameSystem : MonoBehaviour {
     }
 
     /// <summary>
-    /// Increase the game difficulty based on the user's score
+    /// Increase the game difficulty based on the user's score.
     /// </summary>
     private void increaseDifficulty()
     {
-        //TODO: Increase difficulty based on score
+        if (score % 5 == 0 && score != 0)
+        {
+            currentSpawnRate = Tools.adjustDifficultyComponent(currentSpawnRate, .1f, maxSpawnRate);
+            currentCliffGap = Tools.adjustDifficultyComponent(currentCliffGap, .025f, minCliffGap);
+            currentThreshhold = Tools.adjustDifficultyComponent(currentThreshhold, .5f, 4f);
+
+            currentSpeed += new Vector3(0, -.1f, 0);
+
+            Debug.Log(currentSpawnRate);
+            Debug.Log(currentCliffGap);
+            Debug.Log(currentThreshhold);
+            Debug.Log(currentSpeed.y);
+        }
     }
 
     /// <summary>
@@ -225,6 +237,7 @@ public class GameSystem : MonoBehaviour {
         {
             if (collidables[i].outOfBounds())
             {
+                collidables[i].increaseScoreIfCliffPassed(this);
                 Destroy(collidables[i].collidableGameObject);
                 collidables.Remove(collidables[i]);
                 i--;

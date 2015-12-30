@@ -68,4 +68,14 @@ public static class Tools {
     {
         return cliff.GetComponent<SpriteRenderer>().sprite.bounds.size.x * cliff.GetComponent<SpriteRenderer>().transform.localScale.x / 2f;
     }
+
+    public static float adjustDifficultyComponent(float component, float adjustment, float threshold)
+    {
+        if (component >= threshold)
+        {
+            return component -= adjustment;
+        }
+
+        else return component;
+    }
 }

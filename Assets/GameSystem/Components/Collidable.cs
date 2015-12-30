@@ -15,8 +15,8 @@ public abstract class Collidable {
     /// <param name="gameSystem">The affected Game System.</param>
     public static void generateCollidable(GameSystem gameSystem)
     {
-        int thresholdRange = gameSystem.thresholdRange;
-        int threshold = gameSystem.threshold();
+        float thresholdRange = gameSystem.thresholdRange;
+        float threshold = gameSystem.threshold();
         float yMin = gameSystem.minXCliffScale;
         float yMax = gameSystem.maxXCliffScale;
 
@@ -39,7 +39,7 @@ public abstract class Collidable {
             return;
         }
 
-        int cliffSelector = Random.Range(0, 1);
+        int cliffSelector = Random.Range(0, 2);
         Vector3 cliffScale = Tools.calculateRandomXScale(yMin, yMax);
         switch (cliffSelector)
         {
@@ -79,6 +79,13 @@ public abstract class Collidable {
     {
         collidableGameObject.transform.position += distance;
     }
+
+    /// <summary>
+    /// Increases score of a cliff is passed. This function has no effect
+    /// if a coin is passed.
+    /// </summary>
+    /// <param name="gameSystem"></param>
+    public abstract void increaseScoreIfCliffPassed(GameSystem gameSystem);
 }
 
 #region Coin Subclass
@@ -109,6 +116,12 @@ public class Coin : Collidable
         MonoBehaviour.Destroy(collidableGameObject);
         indexOfCollidable--;
         gameSystem.increaseScore();
+    }
+
+    override
+    public void increaseScoreIfCliffPassed(GameSystem gameSystem)
+    {
+        return;
     }
 }
 
@@ -145,6 +158,12 @@ public class LeftCliff : Collidable
         // TODO: Play Collision Audio
         gameSystem.enableGameOver();
     }
+
+    override
+    public void increaseScoreIfCliffPassed(GameSystem gameSystem)
+    {
+        gameSystem.increaseScore();
+    }
 }
 
 #endregion Left Cliff Subclass
@@ -178,6 +197,12 @@ public class RightCliff : Collidable
     {
         // Play Collision Audio
         gameSystem.enableGameOver();
+    }
+
+    override
+    public void increaseScoreIfCliffPassed(GameSystem gameSystem)
+    {
+        gameSystem.increaseScore();
     }
 }
 
