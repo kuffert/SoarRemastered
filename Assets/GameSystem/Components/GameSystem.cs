@@ -21,6 +21,7 @@ public class GameSystem : MonoBehaviour {
     public float maxCliffGap;
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
+    public bool spawnCoins;
 
     private float currentThreshhold;
     private float currentSpawnRate;
@@ -143,11 +144,11 @@ public class GameSystem : MonoBehaviour {
         gameOver = true;
         //currentSpeed = new Vector3(0f, 0f, 0f);
         scoreText.GetComponent<TextMesh>().text = "Game Over";
-        finalScoreText.GetComponent<TextMesh>().text = "Final Score: " + score;
+        finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
         finalScoreText.AddComponent<BoxCollider>();
         restartText.GetComponent<TextMesh>().text = "Restart";
         restartText.AddComponent<BoxCollider>();
-        mainMenuText.GetComponent<TextMesh>().text = "Main Menu:";
+        mainMenuText.GetComponent<TextMesh>().text = "Main Menu";
         mainMenuText.AddComponent<BoxCollider>();
     }
 
@@ -160,7 +161,7 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void updateScore()
     {
-        scoreText.GetComponent<TextMesh>().text = "Score: " + score;
+        scoreText.GetComponent<TextMesh>().text = "Score:" + score;
     }
 
     /// <summary>
@@ -170,16 +171,19 @@ public class GameSystem : MonoBehaviour {
     {
         if (score % 5 == 0 && score != 0)
         {
-            currentSpawnRate = Tools.adjustDifficultyComponent(currentSpawnRate, .1f, maxSpawnRate);
-            currentCliffGap = Tools.adjustDifficultyComponent(currentCliffGap, .025f, minCliffGap);
+            currentSpawnRate = Tools.adjustDifficultyComponent(currentSpawnRate, .2f, maxSpawnRate);
+            currentCliffGap = Tools.adjustDifficultyComponent(currentCliffGap, .05f, minCliffGap);
             currentThreshhold = Tools.adjustDifficultyComponent(currentThreshhold, .5f, 4f);
 
-            currentSpeed += new Vector3(0, -.1f, 0);
+            if (currentSpeed.y > maxSpeed.y)
+            {
+                currentSpeed += new Vector3(0, -.25f, 0);
+            }
 
-            Debug.Log(currentSpawnRate);
-            Debug.Log(currentCliffGap);
-            Debug.Log(currentThreshhold);
-            Debug.Log(currentSpeed.y);
+            Debug.Log("spawn rate: " + currentSpawnRate);
+            Debug.Log("cliff gap: " + currentCliffGap);
+            Debug.Log("threshold: " + currentThreshhold);
+            Debug.Log("speed: " + currentSpeed.y);
         }
     }
 

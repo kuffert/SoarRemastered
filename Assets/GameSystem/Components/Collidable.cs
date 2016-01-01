@@ -22,7 +22,7 @@ public abstract class Collidable {
 
         bool spawnCoin = Random.Range(0, thresholdRange) < threshold;
 
-        if (spawnCoin)
+        if (spawnCoin && gameSystem.spawnCoins)
         {
             Collidable newCoin = new Coin();
             gameSystem.addCollidable(newCoin);
