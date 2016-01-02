@@ -9,8 +9,7 @@ public abstract class Collidable {
     public GameObject collidableGameObject;
 
     /// <summary>
-    /// Generates a collidable depending on the current difficulty. 
-    /// Cliff spawning depends on the current difficulty threshhold.
+    /// Generates a collidable depending on the current difficulty threshold.
     /// </summary>
     /// <param name="gameSystem">The affected Game System.</param>
     public static void generateCollidable(GameSystem gameSystem)
@@ -111,7 +110,7 @@ public class Coin : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        // TODO: Play CoinGet Audio
+        gameSystem.coinPickupSound.Play();
         gameSystem.removeCollidable(this);
         MonoBehaviour.Destroy(collidableGameObject);
         indexOfCollidable--;
@@ -155,13 +154,18 @@ public class LeftCliff : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        // TODO: Play Collision Audio
         gameSystem.enableGameOver();
     }
 
+    /// <summary>
+    /// Increases the score of the current game instance if a cliff has been passed.
+    /// </summary>
+    /// <param name="gameSystem">The affected game system.</param>
     override
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
+        gameSystem.leftCliffText.GetComponent<CliffPassedFeedback>().fade = true;
+        gameSystem.cliffPassedSound.Play();
         gameSystem.increaseScore();
     }
 }
@@ -195,13 +199,18 @@ public class RightCliff : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        // Play Collision Audio
         gameSystem.enableGameOver();
     }
 
+    /// <summary>
+    /// Increases the score of the current game instance if a cliff has been passed.
+    /// </summary>
+    /// <param name="gameSystem">The affected game system.</param>
     override
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
+        gameSystem.rightCliffText.GetComponent<CliffPassedFeedback>().fade = true;
+        gameSystem.cliffPassedSound.Play();
         gameSystem.increaseScore();
     }
 }

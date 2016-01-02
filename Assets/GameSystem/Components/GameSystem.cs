@@ -5,11 +5,20 @@ using System.Collections.Generic;
 /// GameSystem handles all information pertaining to a single game instance. 
 /// </summary>
 public class GameSystem : MonoBehaviour {
+
+    public static bool PAUSE = false;
+    
     public GameObject player;
     public GameObject scoreText;
     public GameObject finalScoreText;
     public GameObject restartText;
     public GameObject mainMenuText;
+    public GameObject leftCliffText;
+    public GameObject rightCliffText;
+
+    public AudioSource cliffPassedSound;
+    public AudioSource coinPickupSound;
+
     public int maxCollidables;
     public float thresholdRange;
     public float initialThreshold;
@@ -35,17 +44,19 @@ public class GameSystem : MonoBehaviour {
     #region Startup And Update
     void Awake ()
     {
-        collidables = new List<Collidable>();
-
         // Places all text at screen-fitting positions.
         scoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .95f, 10f));
         finalScoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .9f, 10f));
         restartText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
         mainMenuText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
+        leftCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.1f, .075f, 10f));
+        rightCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.9f, .075f, 10f));
         scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         mainMenuText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        leftCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        rightCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
     
         // Places the player at a screen-fitting position.
         player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .075f, 10f));
@@ -53,13 +64,21 @@ public class GameSystem : MonoBehaviour {
 
 	void Start ()
     {
+        collidables = new List<Collidable>();
         gameOver = false;
         currentSpawnRate = initialSpawnRate;
         currentSpeed = initialSpeed;
         currentThreshhold = initialThreshold;
         currentCliffGap = maxCliffGap;
         score = 0;
+        timePassed = 0f;
         updateScore();
+
+        Debug.Log(gameOver);
+        Debug.Log(currentSpawnRate);
+        Debug.Log(currentThreshhold);
+        Debug.Log(currentCliffGap);
+        Debug.Log(timePassed);
 	}
 	
 	void Update ()
@@ -142,7 +161,6 @@ public class GameSystem : MonoBehaviour {
     public void enableGameOver()
     {
         gameOver = true;
-        //currentSpeed = new Vector3(0f, 0f, 0f);
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
         finalScoreText.AddComponent<BoxCollider>();
@@ -213,7 +231,7 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void spawnCollidables()
     {
-        if (collidables.Count <= maxCollidables && Time.time >= timePassed)
+        if (collidables.Count <= maxCollidables && Time.timeSinceLevelLoad >= timePassed)
         {
             timePassed += currentSpawnRate;
             Collidable.generateCollidable(this);
