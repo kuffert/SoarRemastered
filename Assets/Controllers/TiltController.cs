@@ -12,9 +12,9 @@ public class TiltController : MonoBehaviour
 
     void Start()
     {
-        float gliderWidth = this.GetComponent<SpriteRenderer>().sprite.bounds.size.x / 2;
-        leftBound = -3f + gliderWidth;
-        rightBound = 3f - gliderWidth;
+        float gliderWidth = GetComponent<SpriteRenderer>().sprite.bounds.size.x / 2;
+        leftBound = Camera.main.ViewportToWorldPoint(new Vector3(0f, 0f, 0f)).x + gliderWidth;
+        rightBound = Camera.main.ViewportToWorldPoint(new Vector3(1f, 0f, 0f)).x - gliderWidth;
     }
 
     void Update()

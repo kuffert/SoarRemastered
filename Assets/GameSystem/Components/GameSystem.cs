@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class GameSystem : MonoBehaviour {
 
     public static bool PAUSE = false;
+    public static bool INVULNERABLE = false;
     
     public GameObject player;
     public GameObject scoreText;
@@ -18,8 +19,13 @@ public class GameSystem : MonoBehaviour {
 
     public AudioSource cliffPassedSound;
     public AudioSource coinPickupSound;
+    public AudioSource gameOverSound;
+    public AudioSource chargeSound;
+    public AudioSource chargeFailSound;
 
+    public int maxCharges;
     public int maxCollidables;
+    public float invulnDuration;
     public float thresholdRange;
     public float initialThreshold;
     public float initialSpawnRate;
@@ -32,6 +38,8 @@ public class GameSystem : MonoBehaviour {
     public Vector3 maxSpeed;
     public bool spawnCoins;
 
+    private int availableCharges;
+    private float endInvulnTimer;
     private float currentThreshhold;
     private float currentSpawnRate;
     private float timePassed;
@@ -40,6 +48,10 @@ public class GameSystem : MonoBehaviour {
     private int score;
     private bool gameOver;
     private List<Collidable> collidables;
+    private List<GameObject> charges;
+
+    private float storedSpawnRate;
+    private Vector3 storedSpeed;
 
     #region Startup And Update
     void Awake ()
@@ -59,15 +71,20 @@ public class GameSystem : MonoBehaviour {
         rightCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
     
         // Places the player at a screen-fitting position.
-        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .075f, 10f));
+        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .1f, 10f));
     }
 
 	void Start ()
     {
         collidables = new List<Collidable>();
+        charges = new List<GameObject>();
+        populateCharges();
         gameOver = false;
+        PAUSE = false;
+        INVULNERABLE = false;
+        availableCharges = maxCharges;
         currentSpawnRate = initialSpawnRate;
-        currentSpeed = initialSpeed;
+        currentSpeed = initialSpeed; 
         currentThreshhold = initialThreshold;
         currentCliffGap = maxCliffGap;
         score = 0;
@@ -93,6 +110,8 @@ public class GameSystem : MonoBehaviour {
         moveCollidables();
         removeOutOfBoundsCollidables();
         checkCollisions();
+        useChargeFromTouch();
+        applyActiveChargeEffect();
     }
 
     #endregion Startup And Update
@@ -161,6 +180,7 @@ public class GameSystem : MonoBehaviour {
     public void enableGameOver()
     {
         gameOver = true;
+        PAUSE = true;
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
         finalScoreText.AddComponent<BoxCollider>();
@@ -224,6 +244,65 @@ public class GameSystem : MonoBehaviour {
 
     #endregion Game System Functionality
 
+    #region Charge System Functionality
+
+    /// <summary>
+    /// Populates the initial list of charges.
+    /// </summary>
+    private void populateCharges()
+    {
+        //float gap = .025f;
+        //float chargeSpriteWidth = Camera.main.WorldToViewportPoint(new Vector3(0, SpriteAssets.spriteAssets.charge.rect.y, 0f)).y;
+        //float totalChargeSpace = maxCharges-1 * gap + maxCharges * chargeSpriteWidth;
+        for (int i = 0; i < maxCharges; i++)
+        {
+            float xLoc = .4f + i / 10f;
+            GameObject charge = new GameObject();
+            charge.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
+            charge.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(xLoc, .05f, 10f));
+            charges.Add(charge);
+        }   
+    }
+
+    /// <summary>
+    /// Consumes a charge, granting invulnerability and a speed boost.
+    /// </summary>
+    private void consumeCharge()
+    {
+        if (availableCharges > 0)
+        {
+            chargeSound.Play();
+            INVULNERABLE = true;
+            endInvulnTimer = Time.timeSinceLevelLoad + invulnDuration;
+            charges[availableCharges - 1].GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.emptyCharge;
+            availableCharges = (availableCharges <= 1) ? 0 : availableCharges - 1;
+            storedSpawnRate = currentSpawnRate;
+            storedSpeed = currentSpeed;
+            currentSpawnRate /= 2f;
+            currentSpeed *= 2f;
+        }
+        else
+        {
+            chargeFailSound.Play();
+        }
+    }
+
+    /// <summary>
+    /// If a charge is currently in effect and its timer is active, maintain invunerability.
+    /// Otherwise, disable it. 
+    /// </summary>
+    private void applyActiveChargeEffect()
+    {
+        if (INVULNERABLE && Time.timeSinceLevelLoad > endInvulnTimer) 
+        {
+            INVULNERABLE = false;
+            currentSpawnRate *= 2f;
+            currentSpeed /= 2f;
+        }
+    }
+
+    #endregion Charge System Functionality
+
     #region Collidable Management
 
     /// <summary>
@@ -269,7 +348,7 @@ public class GameSystem : MonoBehaviour {
 
     #endregion Collidable Management
 
-    #region Endgame
+    #region User Input Management
 
     /// <summary>
     /// Detects user input and navigates according to the button they've pressed.
@@ -295,6 +374,30 @@ public class GameSystem : MonoBehaviour {
         }
     }
 
-    #endregion Endgame
+    /// <summary>
+    /// When a user taps the screen, a charge should be consumed.
+    /// </summary>
+    private void useChargeFromTouch()
+    {
+        if (Input.GetMouseButtonDown(0) && Time.timeSinceLevelLoad >= 1)
+        {
+            if (PAUSE)
+            {
+                return;
+            }
+
+            else if (INVULNERABLE)
+            {
+                chargeFailSound.Play();
+            }
+
+            else
+            {
+                consumeCharge();
+            }
+        }
+    }
+
+    #endregion User Input Management
 
 }

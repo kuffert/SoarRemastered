@@ -154,7 +154,11 @@ public class LeftCliff : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        gameSystem.enableGameOver();
+        if (!GameSystem.INVULNERABLE)
+        {
+            gameSystem.gameOverSound.Play();
+            gameSystem.enableGameOver();
+        }
     }
 
     /// <summary>
@@ -199,7 +203,11 @@ public class RightCliff : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        gameSystem.enableGameOver();
+        if (!GameSystem.INVULNERABLE)
+        {
+            gameSystem.gameOverSound.Play();
+            gameSystem.enableGameOver();
+        }
     }
 
     /// <summary>
