@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Causes the text object to become visible and then slowly fade to invisible.
 /// </summary>
-public class CliffPassedFeedback : MonoBehaviour {
+public class TextFadeOut : MonoBehaviour {
 
     public bool fade = false;
     float fadeSpeed = 0.01f;

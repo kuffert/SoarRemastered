@@ -8,7 +8,8 @@ public class GameSystem : MonoBehaviour {
 
     public static bool PAUSE = false;
     public static bool INVULNERABLE = false;
-    
+    public bool spawnCoins;
+
     public GameObject player;
     public GameObject scoreText;
     public GameObject finalScoreText;
@@ -16,6 +17,7 @@ public class GameSystem : MonoBehaviour {
     public GameObject mainMenuText;
     public GameObject leftCliffText;
     public GameObject rightCliffText;
+    public GameObject alertText;
 
     public AudioSource cliffPassedSound;
     public AudioSource coinPickupSound;
@@ -26,17 +28,21 @@ public class GameSystem : MonoBehaviour {
     public int maxCharges;
     public int maxCollidables;
     public float invulnDuration;
+
     public float thresholdRange;
     public float initialThreshold;
+    public float chargeThreshold;
+
     public float initialSpawnRate;
     public float maxSpawnRate;
+
     public float minXCliffScale;
     public float maxXCliffScale;
     public float minCliffGap;
     public float maxCliffGap;
+
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
-    public bool spawnCoins;
 
     private int availableCharges;
     private float endInvulnTimer;
@@ -44,14 +50,13 @@ public class GameSystem : MonoBehaviour {
     private float currentSpawnRate;
     private float timePassed;
     private float currentCliffGap;
+    private float storedSpawnRate;
     private Vector3 currentSpeed;
+    private Vector3 storedSpeed;
     private int score;
     private bool gameOver;
     private List<Collidable> collidables;
     private List<GameObject> charges;
-
-    private float storedSpawnRate;
-    private Vector3 storedSpeed;
 
     #region Startup And Update
     void Awake ()
@@ -63,15 +68,17 @@ public class GameSystem : MonoBehaviour {
         mainMenuText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
         leftCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.1f, .075f, 10f));
         rightCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.9f, .075f, 10f));
+        alertText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .8f, 10f));
         scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         mainMenuText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         leftCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         rightCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
-    
+        alertText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        
         // Places the player at a screen-fitting position.
-        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .1f, 10f));
+        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .15f, 10f));
     }
 
 	void Start ()
@@ -87,15 +94,11 @@ public class GameSystem : MonoBehaviour {
         currentSpeed = initialSpeed; 
         currentThreshhold = initialThreshold;
         currentCliffGap = maxCliffGap;
-        score = 0;
+        score = 0;  
         timePassed = 0f;
+        storedSpawnRate = initialSpawnRate;
+        storedSpeed = initialSpeed;
         updateScore();
-
-        Debug.Log(gameOver);
-        Debug.Log(currentSpawnRate);
-        Debug.Log(currentThreshhold);
-        Debug.Log(currentCliffGap);
-        Debug.Log(timePassed);
 	}
 	
 	void Update ()
@@ -111,7 +114,7 @@ public class GameSystem : MonoBehaviour {
         removeOutOfBoundsCollidables();
         checkCollisions();
         useChargeFromTouch();
-        applyActiveChargeEffect();
+        expireCharge();
     }
 
     #endregion Startup And Update
@@ -174,6 +177,25 @@ public class GameSystem : MonoBehaviour {
     }
 
     /// <summary>
+    /// Obtaining a charge replenishes the players charges, if 
+    /// the current amount is less than the maximum.
+    /// </summary>
+    public void pickupCharge()
+    {
+        if (availableCharges < maxCharges)
+        {
+            popAlert("+1 Boost");
+            availableCharges += 1;
+            charges[availableCharges - 1].GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
+        }
+
+        else
+        {
+            popAlert("Boost Charges Maxed");
+        }
+    }
+
+    /// <summary>
     /// Enables the end of game. This displays and adds interactability with 
     /// navigational buttons, and sets the state of the game to ended.
     /// </summary>
@@ -217,11 +239,6 @@ public class GameSystem : MonoBehaviour {
             {
                 currentSpeed += new Vector3(0, -.25f, 0);
             }
-
-            Debug.Log("spawn rate: " + currentSpawnRate);
-            Debug.Log("cliff gap: " + currentCliffGap);
-            Debug.Log("threshold: " + currentThreshhold);
-            Debug.Log("speed: " + currentSpeed.y);
         }
     }
 
@@ -242,6 +259,16 @@ public class GameSystem : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Pop up the alert text with an alert message.
+    /// </summary>
+    /// <param name="alertMessage">The displayed message</param>
+    private void popAlert(string alertMessage)
+    {
+        alertText.GetComponent<TextMesh>().text = alertMessage;
+        alertText.GetComponent<TextFadeOut>().fade = true;
+    }
+
     #endregion Game System Functionality
 
     #region Charge System Functionality
@@ -251,15 +278,20 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void populateCharges()
     {
-        //float gap = .025f;
-        //float chargeSpriteWidth = Camera.main.WorldToViewportPoint(new Vector3(0, SpriteAssets.spriteAssets.charge.rect.y, 0f)).y;
-        //float totalChargeSpace = maxCharges-1 * gap + maxCharges * chargeSpriteWidth;
+        float gap = -.025f;
+        Sprite chargeImage = SpriteAssets.spriteAssets.charge;
+        float leftBound = Camera.main.ViewportToWorldPoint(new Vector3(0f, 0f, 0f)).x;
+        float chargeSpriteWidth = Camera.main.WorldToViewportPoint(new Vector3(leftBound + chargeImage.bounds.size.x, 0f, 0f)).x;
+        float totalChargeSpace = (maxCharges-1) * gap + (maxCharges * chargeSpriteWidth);
+        float initialPlacement = .5f - totalChargeSpace / 2;
+
         for (int i = 0; i < maxCharges; i++)
         {
-            float xLoc = .4f + i / 10f;
+            float xLoc = initialPlacement + (i * gap) + (i * chargeSpriteWidth) + (.5f * chargeSpriteWidth);
             GameObject charge = new GameObject();
             charge.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
             charge.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(xLoc, .05f, 10f));
+            charge.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
             charges.Add(charge);
         }   
     }
@@ -272,6 +304,7 @@ public class GameSystem : MonoBehaviour {
         if (availableCharges > 0)
         {
             chargeSound.Play();
+            popAlert("Boost Activated");
             INVULNERABLE = true;
             endInvulnTimer = Time.timeSinceLevelLoad + invulnDuration;
             charges[availableCharges - 1].GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.emptyCharge;
@@ -284,6 +317,7 @@ public class GameSystem : MonoBehaviour {
         else
         {
             chargeFailSound.Play();
+            popAlert("No Boost Charges!");
         }
     }
 
@@ -291,13 +325,16 @@ public class GameSystem : MonoBehaviour {
     /// If a charge is currently in effect and its timer is active, maintain invunerability.
     /// Otherwise, disable it. 
     /// </summary>
-    private void applyActiveChargeEffect()
+    private void expireCharge()
     {
         if (INVULNERABLE && Time.timeSinceLevelLoad > endInvulnTimer) 
         {
             INVULNERABLE = false;
             currentSpawnRate *= 2f;
             currentSpeed /= 2f;
+            Vector3 position = player.transform.position;
+            position.z = 0f;
+            player.transform.position = position;
         }
     }
 

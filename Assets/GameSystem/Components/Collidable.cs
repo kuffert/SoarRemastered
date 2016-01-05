@@ -16,15 +16,23 @@ public abstract class Collidable {
     {
         float thresholdRange = gameSystem.thresholdRange;
         float threshold = gameSystem.threshold();
+        float chargeThreshold = gameSystem.chargeThreshold;
         float yMin = gameSystem.minXCliffScale;
         float yMax = gameSystem.maxXCliffScale;
 
         bool spawnCoin = Random.Range(0, thresholdRange) < threshold;
-
         if (spawnCoin && gameSystem.spawnCoins)
         {
             Collidable newCoin = new Coin();
             gameSystem.addCollidable(newCoin);
+            return;
+        }
+
+        bool spawnCharge = Random.Range(0, thresholdRange) < chargeThreshold;
+        if (spawnCharge)
+        {
+            Collidable newCharge = new Charge();
+            gameSystem.addCollidable(newCharge);
             return;
         }
 
@@ -126,6 +134,44 @@ public class Coin : Collidable
 
 #endregion Coin Subclass
 
+#region Charge Subclass
+/// <summary>
+/// A Charge collidable restores one of the player's charges.
+/// </summary>
+public class Charge : Collidable
+{
+    public Charge() {
+        collidableGameObject = new GameObject();
+        collidableGameObject.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
+        collidableGameObject.transform.position = Tools.calculateRandomXVector();
+        collidableGameObject.AddComponent<BoxCollider>().size = new Vector3(.3f, .5f, 1f);
+        collidableGameObject.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.COLLIDABLELAYER;
+    }
+
+    /// <summary>
+    /// Upon charge collision, raises the number of available charges and then removes
+    /// the charge from the game world.
+    /// </summary>
+    /// <param name="gameSystem">The affected Game System.</param>
+    override
+    public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
+    {
+        // Play charge pickup sound
+        gameSystem.removeCollidable(this);
+        MonoBehaviour.Destroy(collidableGameObject);
+        indexOfCollidable--;
+        gameSystem.pickupCharge();
+    }
+
+   override
+   public void increaseScoreIfCliffPassed(GameSystem gameSystem)
+    {
+        return;
+    }
+}
+
+#endregion Charge Subclass
+
 #region Left Cliff Subclass
 /// <summary>
 /// A LeftCliff collidable causes the game to end upon collision. It shares the same
@@ -168,7 +214,7 @@ public class LeftCliff : Collidable
     override
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
-        gameSystem.leftCliffText.GetComponent<CliffPassedFeedback>().fade = true;
+        gameSystem.leftCliffText.GetComponent<TextFadeOut>().fade = true;
         gameSystem.cliffPassedSound.Play();
         gameSystem.increaseScore();
     }
@@ -217,10 +263,12 @@ public class RightCliff : Collidable
     override
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
-        gameSystem.rightCliffText.GetComponent<CliffPassedFeedback>().fade = true;
+        gameSystem.rightCliffText.GetComponent<TextFadeOut>().fade = true;
         gameSystem.cliffPassedSound.Play();
         gameSystem.increaseScore();
     }
 }
 
 #endregion Right Cliff Subclass
+
+

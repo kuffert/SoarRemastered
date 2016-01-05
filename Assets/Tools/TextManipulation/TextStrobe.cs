@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Causes the text object to fade its opacity in and out.
 /// </summary>
-public class TextFade : MonoBehaviour {
+public class TextStrobe : MonoBehaviour {
 
     bool fadeIn = false;
     bool fadeOut = false;
