@@ -83,6 +83,9 @@ public class GameSystem : MonoBehaviour {
 
 	void Start ()
     {
+        UserData.userData.Load();
+        Debug.Log(UserData.userData.getMusicDisabled());
+        AudioManager.playMusic(GetComponent<AudioSource>());
         collidables = new List<Collidable>();
         charges = new List<GameObject>();
         populateCharges();
@@ -205,6 +208,8 @@ public class GameSystem : MonoBehaviour {
         PAUSE = true;
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
+        UserData.userData.addNewScore(score);
+        UserData.userData.Save();
         finalScoreText.AddComponent<BoxCollider>();
         restartText.GetComponent<TextMesh>().text = "Restart";
         restartText.AddComponent<BoxCollider>();
@@ -303,7 +308,7 @@ public class GameSystem : MonoBehaviour {
     {
         if (availableCharges > 0)
         {
-            chargeSound.Play();
+            AudioManager.playSound(chargeSound);
             popAlert("Boost Activated");
             INVULNERABLE = true;
             endInvulnTimer = Time.timeSinceLevelLoad + invulnDuration;
@@ -316,7 +321,7 @@ public class GameSystem : MonoBehaviour {
         }
         else
         {
-            chargeFailSound.Play();
+            AudioManager.playSound(chargeFailSound);
             popAlert("No Boost Charges!");
         }
     }
@@ -330,8 +335,8 @@ public class GameSystem : MonoBehaviour {
         if (INVULNERABLE && Time.timeSinceLevelLoad > endInvulnTimer) 
         {
             INVULNERABLE = false;
-            currentSpawnRate *= 2f;
-            currentSpeed /= 2f;
+            currentSpawnRate = storedSpawnRate;
+            currentSpeed = storedSpeed;
             Vector3 position = player.transform.position;
             position.z = 0f;
             player.transform.position = position;
@@ -425,7 +430,7 @@ public class GameSystem : MonoBehaviour {
 
             else if (INVULNERABLE)
             {
-                chargeFailSound.Play();
+                AudioManager.playSound(chargeFailSound);
             }
 
             else
@@ -438,3 +443,4 @@ public class GameSystem : MonoBehaviour {
     #endregion User Input Management
 
 }
+    

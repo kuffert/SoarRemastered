@@ -118,7 +118,7 @@ public class Coin : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        gameSystem.coinPickupSound.Play();
+        AudioManager.playSound(gameSystem.coinPickupSound);
         gameSystem.removeCollidable(this);
         MonoBehaviour.Destroy(collidableGameObject);
         indexOfCollidable--;
@@ -202,7 +202,7 @@ public class LeftCliff : Collidable
     {
         if (!GameSystem.INVULNERABLE)
         {
-            gameSystem.gameOverSound.Play();
+            AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
         }
     }
@@ -215,7 +215,7 @@ public class LeftCliff : Collidable
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
         gameSystem.leftCliffText.GetComponent<TextFadeOut>().fade = true;
-        gameSystem.cliffPassedSound.Play();
+        AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
     }
 }
@@ -251,7 +251,7 @@ public class RightCliff : Collidable
     {
         if (!GameSystem.INVULNERABLE)
         {
-            gameSystem.gameOverSound.Play();
+            AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
         }
     }
@@ -264,7 +264,7 @@ public class RightCliff : Collidable
     public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {
         gameSystem.rightCliffText.GetComponent<TextFadeOut>().fade = true;
-        gameSystem.cliffPassedSound.Play();
+        AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
     }
 }
