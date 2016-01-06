@@ -84,7 +84,6 @@ public class GameSystem : MonoBehaviour {
 	void Start ()
     {
         UserData.userData.Load();
-        Debug.Log(UserData.userData.getMusicDisabled());
         AudioManager.playMusic(GetComponent<AudioSource>());
         collidables = new List<Collidable>();
         charges = new List<GameObject>();

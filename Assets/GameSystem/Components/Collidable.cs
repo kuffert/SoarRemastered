@@ -163,6 +163,10 @@ public class Charge : Collidable
         gameSystem.pickupCharge();
     }
 
+    /// <summary>
+    /// A cliff has not been passed, so no effect.
+    /// </summary>
+    /// <param name="gameSystem"></param>
    override
    public void increaseScoreIfCliffPassed(GameSystem gameSystem)
     {

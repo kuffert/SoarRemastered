@@ -69,6 +69,13 @@ public static class Tools {
         return cliff.GetComponent<SpriteRenderer>().sprite.bounds.size.x * cliff.GetComponent<SpriteRenderer>().transform.localScale.x / 2f;
     }
 
+    /// <summary>
+    /// Increases the difficulty of a particular game component.
+    /// </summary>
+    /// <param name="component">Component being effected.</param>
+    /// <param name="adjustment">Level of difficulty increase.</param>
+    /// <param name="threshold">The limit of the difficulty increase.</param>
+    /// <returns></returns>
     public static float adjustDifficultyComponent(float component, float adjustment, float threshold)
     {
         if (component >= threshold)
@@ -77,5 +84,17 @@ public static class Tools {
         }
 
         else return component;
+    }
+    
+    // This calculates the Sprites "Unit" width.
+    public static float calculateSpriteUnitWidth(Sprite sprite)
+    {
+        return sprite.textureRect.width / sprite.pixelsPerUnit;
+    }
+    
+    // This calculates the Sprites "Unit" height.
+    public static float calculateSpriteUnitHeight(Sprite sprite)
+    {
+        return sprite.textureRect.height / sprite.pixelsPerUnit;
     }
 }

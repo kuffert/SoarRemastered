@@ -21,7 +21,7 @@ public class MainMenu : MonoBehaviour {
     void Start () {
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
-        titleText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .95f, 10f));
+        titleText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .90f, 10f));
         startText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
         scoresText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
         optionsText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .25f, 10f));
@@ -58,6 +58,9 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Show the list of options if showOptions is enabled.
+    /// </summary>
     private void showOptionsList()
     {
         if (showOptions)
