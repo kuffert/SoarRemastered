@@ -54,9 +54,59 @@ public static class Tools {
     /// </summary>
     /// <param name="viewportVector">The viewport vector to be converted.</param>
     /// <returns></returns>
-    public static Vector3 calculateWorldLocationFromViewportVector(Vector3 viewportVector)
+    public static Vector3 viewToWorldVector(Vector3 viewportVector)
     {
         return Camera.main.ViewportToWorldPoint(viewportVector);
+    }
+    
+    /// <summary>
+    /// Constructs a viewpoint vector3 from a world vector.
+    /// </summary>
+    /// <param name="worldVector"></param>
+    /// <returns></returns>
+    public static Vector3 worldToViewVector(Vector3 worldVector)
+    {
+        return Camera.main.WorldToViewportPoint(worldVector);
+    }
+
+    /// <summary>
+    /// Converts a single x view point to a world point.
+    /// </summary>
+    /// <param name="viewPoint"></param>
+    /// <returns></returns>
+    public static float viewToWorldPointX(float viewPoint)
+    {
+        return Camera.main.ViewportToWorldPoint(new Vector3(viewPoint, 0f)).x;
+    }
+
+    /// <summary>
+    /// Converts a single x world point to a viewport pont.
+    /// </summary>
+    /// <param name="worldPoint"></param>
+    /// <returns></returns>
+    public static float worldToViewPointX(float worldPoint)
+    {
+        return Camera.main.WorldToViewportPoint(new Vector3(worldPoint, 0f)).x;
+    }
+
+    /// <summary>
+    /// Converts a single y view point to a world point.
+    /// </summary>
+    /// <param name="viewPoint"></param>
+    /// <returns></returns>
+    public static float viewToWorldPointY(float viewPoint)
+    {
+        return Camera.main.ViewportToWorldPoint(new Vector3(0f, viewPoint)).y;
+    }
+
+    /// <summary>
+    /// Converts a single y world point to a viewport pont.
+    /// </summary>
+    /// <param name="worldPoint"></param>
+    /// <returns></returns>
+    public static float worldToViewPointY(float worldPoint)
+    {
+        return Camera.main.WorldToViewportPoint(new Vector3(0f, worldPoint)).y;
     }
 
     /// <summary>

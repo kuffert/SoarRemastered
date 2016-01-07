@@ -29,10 +29,11 @@ public abstract class Collidable {
         }
 
         bool spawnCharge = Random.Range(0, thresholdRange) < chargeThreshold;
-        if (spawnCharge)
+        if (spawnCharge && !gameSystem.getChargeSpawnedLast())
         {
             Collidable newCharge = new Charge();
             gameSystem.addCollidable(newCharge);
+            gameSystem.setChargeSpawnedLast(true);
             return;
         }
 
@@ -47,7 +48,7 @@ public abstract class Collidable {
         }
 
         int cliffSelector = Random.Range(0, 2);
-        Vector3 cliffScale = Tools.calculateRandomXScale(yMin, yMax);
+        Vector3 cliffScale = Tools.calculateRandomXScale(1, yMax);
         switch (cliffSelector)
         {
             case 0:
@@ -58,6 +59,7 @@ public abstract class Collidable {
                 gameSystem.addCollidable(new RightCliff(cliffScale));
                 break;
         }
+        gameSystem.setChargeSpawnedLast(false);
     }
 
     /// <summary>
@@ -74,7 +76,7 @@ public abstract class Collidable {
     /// <returns></returns>
     public bool outOfBounds()
     {
-        Vector3 positionAsViewPoint = Camera.main.WorldToViewportPoint(collidableGameObject.transform.position);
+        Vector3 positionAsViewPoint = Tools.worldToViewVector(collidableGameObject.transform.position);
         return positionAsViewPoint.y < -.1f;
     }
 
@@ -209,6 +211,10 @@ public class LeftCliff : Collidable
             AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
         }
+        else if (gameSystem.getRemainingInvulnTime() <= .25f)
+        {
+            gameSystem.increaseRemainingInvulnTime(.25f);
+        }
     }
 
     /// <summary>
@@ -257,6 +263,10 @@ public class RightCliff : Collidable
         {
             AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
+        }
+        else if (gameSystem.getRemainingInvulnTime() <= .25f)
+        {
+            gameSystem.increaseRemainingInvulnTime(.25f);
         }
     }
 

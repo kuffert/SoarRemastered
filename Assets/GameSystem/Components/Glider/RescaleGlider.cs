@@ -16,8 +16,8 @@ public class RescaleGlider : MonoBehaviour {
 	void Start () {
         orthographicScreenHeight = Camera.main.orthographicSize * 2;
         orthographicScreenWidth = orthographicScreenHeight * Screen.width / Screen.height;
-        float spriteUnitWidth = Tools.calculateSpriteUnitWidth(GetComponent<SpriteRenderer>().sprite);
-        float spriteUnitHeight = Tools.calculateSpriteUnitHeight(GetComponent<SpriteRenderer>().sprite);
+        float spriteUnitWidth = Tools.calculateSpriteUnitWidth(SpriteAssets.spriteAssets.glider);
+        float spriteUnitHeight = Tools.calculateSpriteUnitHeight(SpriteAssets.spriteAssets.glider);
 
         transform.localScale = new Vector3(orthographicScreenWidth / spriteUnitWidth / widthScale, orthographicScreenHeight / spriteUnitHeight / heightScale);
     }

@@ -25,6 +25,8 @@ public class GameSystem : MonoBehaviour {
     public AudioSource chargeSound;
     public AudioSource chargeFailSound;
 
+    public int maxDifficultyScore;
+
     public int maxCharges;
     public int maxCollidables;
     public float invulnDuration;
@@ -32,6 +34,7 @@ public class GameSystem : MonoBehaviour {
     public float thresholdRange;
     public float initialThreshold;
     public float chargeThreshold;
+    public float minThreshold;
 
     public float initialSpawnRate;
     public float maxSpawnRate;
@@ -41,20 +44,28 @@ public class GameSystem : MonoBehaviour {
     public float minCliffGap;
     public float maxCliffGap;
 
+    public float gapBetweenCharges;
+
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
 
     private int availableCharges;
-    private float endInvulnTimer;
+    private float remainingInvulnTime;
     private float currentThreshhold;
     private float currentSpawnRate;
     private float timePassed;
     private float currentCliffGap;
     private float storedSpawnRate;
+    private float thresholdDifficultyIncrease;
+    private float spawnRateDifficultyIncrease;
+    private float cliffGapDifficultyIncrease;
+    private float speedDifficultyIncrease;
+    private float chargeSpriteWidth;
     private Vector3 currentSpeed;
     private Vector3 storedSpeed;
     private int score;
     private bool gameOver;
+    private bool chargeSpawnedLast;
     private List<Collidable> collidables;
     private List<GameObject> charges;
 
@@ -62,13 +73,13 @@ public class GameSystem : MonoBehaviour {
     void Awake ()
     {
         // Places all text at screen-fitting positions.
-        scoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .95f, 10f));
-        finalScoreText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .9f, 10f));
-        restartText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
-        mainMenuText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
-        leftCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.1f, .075f, 10f));
-        rightCliffText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.9f, .075f, 10f));
-        alertText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .8f, 10f));
+        scoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .95f, 10f));
+        finalScoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .9f, 10f));
+        restartText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
+        mainMenuText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
+        leftCliffText.transform.position = Tools.viewToWorldVector(new Vector3(.1f, .075f, 10f));
+        rightCliffText.transform.position = Tools.viewToWorldVector(new Vector3(.9f, .075f, 10f));
+        alertText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -78,28 +89,44 @@ public class GameSystem : MonoBehaviour {
         alertText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         
         // Places the player at a screen-fitting position.
-        player.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .15f, 10f));
+        player.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .15f, 10f));
     }
 
 	void Start ()
     {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
+
         collidables = new List<Collidable>();
         charges = new List<GameObject>();
         populateCharges();
+
         gameOver = false;
         PAUSE = false;
         INVULNERABLE = false;
+        chargeSpawnedLast = false;
+
         availableCharges = maxCharges;
         currentSpawnRate = initialSpawnRate;
         currentSpeed = initialSpeed; 
         currentThreshhold = initialThreshold;
         currentCliffGap = maxCliffGap;
+
         score = 0;  
         timePassed = 0f;
+
         storedSpawnRate = initialSpawnRate;
         storedSpeed = initialSpeed;
+
+        float leftBound = Tools.viewToWorldPointX(0f);
+        chargeSpriteWidth = Tools.worldToViewPointX(leftBound + SpriteAssets.spriteAssets.charge.bounds.size.x);
+
+        thresholdDifficultyIncrease = (initialThreshold - minThreshold) / maxDifficultyScore * 5;
+        spawnRateDifficultyIncrease = (initialSpawnRate - maxSpawnRate) / maxDifficultyScore * 5;
+        cliffGapDifficultyIncrease = (maxCliffGap - minCliffGap) / maxDifficultyScore * 5;
+        speedDifficultyIncrease = (maxSpeed.y - initialSpeed.y) / maxDifficultyScore * 5;
+
         updateScore();
 	}
 	
@@ -110,13 +137,16 @@ public class GameSystem : MonoBehaviour {
             delegateNavigationFromTouch();
             return;
         }
+        
         updateScore();
         spawnCollidables();
         moveCollidables();
+        moveCharges();
         removeOutOfBoundsCollidables();
         checkCollisions();
         useChargeFromTouch();
         expireCharge();
+
     }
 
     #endregion Startup And Update
@@ -198,6 +228,25 @@ public class GameSystem : MonoBehaviour {
     }
 
     /// <summary>
+    /// Sets the chargeSpawnedLast boolean to a new value. True
+    /// if the last object spawned was a charge, false otherwise.
+    /// </summary>
+    /// <param name="spawnedLast"></param>
+    public void setChargeSpawnedLast(bool spawnedLast)
+    {
+        chargeSpawnedLast = spawnedLast;
+    }
+
+    /// <summary>
+    /// Retrieves the chargeSpawnedLast boolean.
+    /// </summary>
+    /// <returns></returns>
+    public bool getChargeSpawnedLast()
+    {
+        return chargeSpawnedLast;
+    }
+
+    /// <summary>
     /// Enables the end of game. This displays and adds interactability with 
     /// navigational buttons, and sets the state of the game to ended.
     /// </summary>
@@ -235,14 +284,19 @@ public class GameSystem : MonoBehaviour {
     {
         if (score % 5 == 0 && score != 0)
         {
-            currentSpawnRate = Tools.adjustDifficultyComponent(currentSpawnRate, .2f, maxSpawnRate);
-            currentCliffGap = Tools.adjustDifficultyComponent(currentCliffGap, .05f, minCliffGap);
-            currentThreshhold = Tools.adjustDifficultyComponent(currentThreshhold, .5f, 4f);
+            currentSpawnRate = Tools.adjustDifficultyComponent(currentSpawnRate, spawnRateDifficultyIncrease, maxSpawnRate);
+            currentCliffGap = Tools.adjustDifficultyComponent(currentCliffGap, cliffGapDifficultyIncrease, minCliffGap);
+            currentThreshhold = Tools.adjustDifficultyComponent(currentThreshhold, thresholdDifficultyIncrease, minThreshold);
 
             if (currentSpeed.y > maxSpeed.y)
             {
-                currentSpeed += new Vector3(0, -.25f, 0);
+                currentSpeed += new Vector3(0, speedDifficultyIncrease, 0);
             }
+
+            Debug.Log(currentSpawnRate);
+            Debug.Log(currentCliffGap);
+            Debug.Log(currentThreshhold);
+            Debug.Log(currentSpeed.y);
         }
     }
 
@@ -282,20 +336,18 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void populateCharges()
     {
-        float gap = -.025f;
-        Sprite chargeImage = SpriteAssets.spriteAssets.charge;
-        float leftBound = Camera.main.ViewportToWorldPoint(new Vector3(0f, 0f, 0f)).x;
-        float chargeSpriteWidth = Camera.main.WorldToViewportPoint(new Vector3(leftBound + chargeImage.bounds.size.x, 0f, 0f)).x;
-        float totalChargeSpace = (maxCharges-1) * gap + (maxCharges * chargeSpriteWidth);
+        float totalChargeSpace = calculateTotalChargeWidth();
         float initialPlacement = .5f - totalChargeSpace / 2;
+        float yLoc = Tools.worldToViewPointY(player.transform.position.y) - .055f;
 
         for (int i = 0; i < maxCharges; i++)
         {
-            float xLoc = initialPlacement + (i * gap) + (i * chargeSpriteWidth) + (.5f * chargeSpriteWidth);
+            float xLoc = initialPlacement + (i * gapBetweenCharges) + (i * chargeSpriteWidth) + (.5f * chargeSpriteWidth);
             GameObject charge = new GameObject();
             charge.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
-            charge.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(xLoc, .05f, 10f));
+            charge.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10f));
             charge.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+            charge.transform.localScale = new Vector3(.5f, .5f, 1f);
             charges.Add(charge);
         }   
     }
@@ -310,12 +362,12 @@ public class GameSystem : MonoBehaviour {
             AudioManager.playSound(chargeSound);
             popAlert("Boost Activated");
             INVULNERABLE = true;
-            endInvulnTimer = Time.timeSinceLevelLoad + invulnDuration;
+            remainingInvulnTime = Time.timeSinceLevelLoad + invulnDuration;
             charges[availableCharges - 1].GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.emptyCharge;
             availableCharges = (availableCharges <= 1) ? 0 : availableCharges - 1;
             storedSpawnRate = currentSpawnRate;
             storedSpeed = currentSpeed;
-            currentSpawnRate /= 2f;
+            currentSpawnRate = maxSpawnRate;
             currentSpeed *= 2f;
         }
         else
@@ -326,12 +378,31 @@ public class GameSystem : MonoBehaviour {
     }
 
     /// <summary>
+    /// Retrieves the remaining time on the invuln timer.
+    /// </summary>
+    /// <returns></returns>
+    public float getRemainingInvulnTime()
+    {
+        float remainingTime = remainingInvulnTime - Time.timeSinceLevelLoad;
+        return remainingTime <= 0 ? 0 : remainingTime;
+    }
+
+    /// <summary>
+    /// Increases the remaining invulnerability time.
+    /// </summary>
+    /// <param name="increase"></param>
+    public void increaseRemainingInvulnTime(float increase)
+    {
+        remainingInvulnTime += increase;
+    }
+
+    /// <summary>
     /// If a charge is currently in effect and its timer is active, maintain invunerability.
     /// Otherwise, disable it. 
     /// </summary>
     private void expireCharge()
     {
-        if (INVULNERABLE && Time.timeSinceLevelLoad > endInvulnTimer) 
+        if (INVULNERABLE && Time.timeSinceLevelLoad > remainingInvulnTime) 
         {
             INVULNERABLE = false;
             currentSpawnRate = storedSpawnRate;
@@ -340,6 +411,33 @@ public class GameSystem : MonoBehaviour {
             position.z = 0f;
             player.transform.position = position;
         }
+    }
+
+    /// <summary>
+    /// Move all charges.
+    /// </summary>
+    private void moveCharges()
+    {
+        float totalChargeWidth = calculateTotalChargeWidth();
+        float initialPlacement = Tools.worldToViewPointX(player.transform.position.x) - .5f * totalChargeWidth;
+        float yLoc = Tools.worldToViewPointY(player.transform.position.y) - .055f;
+        Debug.Log(yLoc);
+        int chargeNumber = 0;
+        foreach(GameObject charge in charges)
+        {
+            float xLoc = initialPlacement + (chargeNumber * gapBetweenCharges) + (chargeNumber * chargeSpriteWidth) + (.5f * chargeSpriteWidth);
+            charge.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10f));
+            chargeNumber++;
+        }
+    }
+
+    /// <summary>
+    /// Calculates the width of all charges total.
+    /// </summary>
+    /// <returns></returns>
+    private float calculateTotalChargeWidth()
+    {
+        return (maxCharges - 1) * gapBetweenCharges + (maxCharges * chargeSpriteWidth);
     }
 
     #endregion Charge System Functionality

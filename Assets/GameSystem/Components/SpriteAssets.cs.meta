@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 7f486475b015c7e43bc7d6ab30d47aa2
-timeCreated: 1451863662
+timeCreated: 1452116073
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
@@ -10,6 +10,7 @@ MonoImporter:
   - rightCliff: {fileID: 21300000, guid: 0c6d76112e066424aae8ec4244a9ab0f, type: 3}
   - emptyCharge: {fileID: 21300000, guid: 7d9fb7edf82fc3c42832e13a51e9f1fa, type: 3}
   - charge: {fileID: 21300000, guid: 3f3947038e470304392c7f0adff7225c, type: 3}
+  - glider: {fileID: 21300000, guid: a57664ae8ac1154439726ff26100945d, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

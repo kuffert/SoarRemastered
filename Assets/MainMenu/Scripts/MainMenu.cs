@@ -21,13 +21,13 @@ public class MainMenu : MonoBehaviour {
     void Start () {
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
-        titleText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .90f, 10f));
-        startText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .45f, 10f));
-        scoresText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .35f, 10f));
-        optionsText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .25f, 10f));
-        scoresList.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .7f, 10f));
-        musicDisabledText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .8f, 10f));
-        soundDisabledText.transform.position = Tools.calculateWorldLocationFromViewportVector(new Vector3(.5f, .7f, 10f));
+        titleText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .90f, 10f));
+        startText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
+        scoresText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
+        optionsText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .25f, 10f));
+        scoresList.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
+        musicDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
+        soundDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         titleText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         startText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;

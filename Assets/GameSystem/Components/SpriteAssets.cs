@@ -16,6 +16,8 @@ public class SpriteAssets : MonoBehaviour {
     public Sprite emptyCharge;
     public Sprite charge;
 
+    public Sprite glider;
+
     public void Awake()
     {
         spriteAssets = this;
