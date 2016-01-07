@@ -336,16 +336,10 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void populateCharges()
     {
-        float totalChargeSpace = calculateTotalChargeWidth();
-        float initialPlacement = .5f - totalChargeSpace / 2;
-        float yLoc = Tools.worldToViewPointY(player.transform.position.y) - .055f;
-
         for (int i = 0; i < maxCharges; i++)
         {
-            float xLoc = initialPlacement + (i * gapBetweenCharges) + (i * chargeSpriteWidth) + (.5f * chargeSpriteWidth);
             GameObject charge = new GameObject();
             charge.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.charge;
-            charge.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10f));
             charge.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
             charge.transform.localScale = new Vector3(.5f, .5f, 1f);
             charges.Add(charge);
