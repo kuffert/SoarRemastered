@@ -11,12 +11,20 @@ public class MainMenu : MonoBehaviour {
     public GameObject startText;
     public GameObject scoresText;
     public GameObject optionsText;
+    public GameObject creditsText;
     public GameObject scoresList;
+    public SpriteRenderer creditsImage;
     public GameObject soundDisabledText;
     public GameObject musicDisabledText;
+    public AudioSource menuSelectSound;
+    public AudioSource menuBackSound;
+    public AudioSource musicSelectSound;
+    public AudioSource startGameSound;
 
     private bool showScores = false;
     private bool showOptions = false;
+    private bool showCredits = false;
+    private bool beginGameReady = false;
 
     void Start () {
         UserData.userData.Load();
@@ -32,14 +40,17 @@ public class MainMenu : MonoBehaviour {
         startText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         optionsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        creditsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         musicDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         soundDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
     }
 
     void Update () {
+        beginGameAfterAudioComplete();
         showScoresList();
         showOptionsList();
+        showCreditsImage();
         delegateNavigationFromTouch();
 	}
 
@@ -76,6 +87,33 @@ public class MainMenu : MonoBehaviour {
     }
 
     /// <summary>
+    /// Show the credits image if the button has been selected.
+    /// </summary>
+    private void showCreditsImage()
+    {
+        if (showCredits)
+        {
+            creditsImage.sprite = SpriteAssets.spriteAssets.creditsImage;
+        }
+
+        else
+        {
+            creditsImage.sprite = null;
+        }
+    }
+
+    /// <summary>
+    /// Allows the game to start once the start audio has completed
+    /// </summary>
+    private void beginGameAfterAudioComplete()
+    {
+        if (beginGameReady && !startGameSound.isPlaying)
+        {
+            Application.LoadLevel("GameScene");
+        }
+    }
+
+    /// <summary>
     /// Determines where to navigate depending on the button touched. 
     /// </summary>
     private void delegateNavigationFromTouch()
@@ -87,25 +125,31 @@ public class MainMenu : MonoBehaviour {
 
             if (startText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F))
             {
-                Application.LoadLevel("GameScene");
+                
+                AudioManager.playSound(startGameSound);
+                beginGameReady = true;
             }
 
             if (scoresText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F))
             {
                 if (!showScores)
                 {
+                    AudioManager.playSound(menuSelectSound);
                     showScores = true;
                     showOptions = false;
+                    showCredits = false;
                     scoresText.GetComponent<TextMesh>().text = "Back";
                     optionsText.GetComponent<TextMesh>().text = "Options";
-
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
                 }
 
                 else
                 {
+                    AudioManager.playSound(menuBackSound);
                     showScores = false;
                     scoresText.GetComponent<TextMesh>().text = "Scores";
                     optionsText.GetComponent<TextMesh>().text = "Options";
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
                 }
             }
 
@@ -113,17 +157,46 @@ public class MainMenu : MonoBehaviour {
             {
                 if (!showOptions)
                 {
+                    AudioManager.playSound(menuSelectSound);
                     showOptions = true;
                     showScores = false;
+                    showCredits = false;
                     optionsText.GetComponent<TextMesh>().text = "Back";
                     scoresText.GetComponent<TextMesh>().text = "Scores";
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
                 }
 
                 else
                 {
+                    AudioManager.playSound(menuBackSound);
                     showOptions = false;
                     optionsText.GetComponent<TextMesh>().text = "Options";
                     scoresText.GetComponent<TextMesh>().text = "Scores";
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
+                }
+            }
+
+            if (creditsText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F))
+            {
+                if (!showCredits)
+                {
+                    AudioManager.playSound(menuSelectSound);
+                    showOptions = false;
+                    showScores = false;
+                    showCredits = true;
+                    startText.GetComponent<TextMesh>().text = "";
+                    optionsText.GetComponent<TextMesh>().text = "";
+                    scoresText.GetComponent<TextMesh>().text = "";
+                    creditsText.GetComponent<TextMesh>().text = "Back";
+                }
+                else
+                {
+                    AudioManager.playSound(menuBackSound);
+                    showCredits = false;
+                    startText.GetComponent<TextMesh>().text = "Start";
+                    optionsText.GetComponent<TextMesh>().text = "Options";
+                    scoresText.GetComponent<TextMesh>().text = "Scores";
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
                 }
             }
 
@@ -131,6 +204,7 @@ public class MainMenu : MonoBehaviour {
             {
                 UserData.userData.setSoundDisabled(!UserData.userData.getSoundDisabled());
                 UserData.userData.Save();
+                AudioManager.playSound(musicSelectSound);
             }
 
             if (musicDisabledText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F) && showOptions)
@@ -146,6 +220,7 @@ public class MainMenu : MonoBehaviour {
                 {
                     AudioManager.playMusic(backgroundMusic);
                 }
+                AudioManager.playSound(musicSelectSound);
             }
         }
     }

@@ -148,6 +148,9 @@ public class Charge : Collidable
         collidableGameObject.transform.position = Tools.calculateRandomXVector();
         collidableGameObject.AddComponent<BoxCollider>().size = new Vector3(.3f, .5f, 1f);
         collidableGameObject.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.COLLIDABLELAYER;
+        collidableGameObject.AddComponent<CycleFrames>().sprites = SpriteAssets.spriteAssets.chargedAnimationSprites;
+        collidableGameObject.GetComponent<CycleFrames>().framesPerSecond = 10;
+        collidableGameObject.GetComponent<CycleFrames>().loop = true;
     }
 
     /// <summary>
@@ -158,7 +161,7 @@ public class Charge : Collidable
     override
     public void applyEffect(GameSystem gameSystem, int indexOfCollidable)
     {
-        // Play charge pickup sound
+        AudioManager.playSound(gameSystem.chargePickupSound);
         gameSystem.removeCollidable(this);
         MonoBehaviour.Destroy(collidableGameObject);
         indexOfCollidable--;

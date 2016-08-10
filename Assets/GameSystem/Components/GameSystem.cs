@@ -11,6 +11,7 @@ public class GameSystem : MonoBehaviour {
     public bool spawnCoins;
 
     public GameObject player;
+    public GameObject playerSprite;
     public GameObject scoreText;
     public GameObject finalScoreText;
     public GameObject restartText;
@@ -23,7 +24,10 @@ public class GameSystem : MonoBehaviour {
     public AudioSource coinPickupSound;
     public AudioSource gameOverSound;
     public AudioSource chargeSound;
+    public AudioSource chargePickupSound;
     public AudioSource chargeFailSound;
+    public AudioSource restartSound;
+    public AudioSource menuReturnSound;
 
     public int maxDifficultyScore;
 
@@ -66,6 +70,7 @@ public class GameSystem : MonoBehaviour {
     private int score;
     private bool gameOver;
     private bool chargeSpawnedLast;
+    private bool restartGameReady;
     private List<Collidable> collidables;
     private List<GameObject> charges;
 
@@ -106,6 +111,7 @@ public class GameSystem : MonoBehaviour {
         PAUSE = false;
         INVULNERABLE = false;
         chargeSpawnedLast = false;
+        restartGameReady = false;
 
         availableCharges = maxCharges;
         currentSpawnRate = initialSpawnRate;
@@ -134,10 +140,10 @@ public class GameSystem : MonoBehaviour {
     {
         if (gameOver)
         {
+            restartGameWhenAudioComplete();
             delegateNavigationFromTouch();
             return;
         }
-        
         updateScore();
         spawnCollidables();
         moveCollidables();
@@ -263,11 +269,27 @@ public class GameSystem : MonoBehaviour {
         restartText.AddComponent<BoxCollider>();
         mainMenuText.GetComponent<TextMesh>().text = "Main Menu";
         mainMenuText.AddComponent<BoxCollider>();
+        BackgroundClouds.updateDoMoveClouds(false);
+        playerSprite.AddComponent<CycleFrames>().sprites = SpriteAssets.spriteAssets.deathAnimationSprites;
+        playerSprite.GetComponent<CycleFrames>().framesPerSecond = 6;
+        playerSprite.GetComponent<CycleFrames>().loop = false;
+        wipeCharges();
     }
 
     #endregion Accessors and Public Functionality
 
     #region Game System Functionality
+
+    /// <summary>
+    /// Restarts the game once the audio has stopped playing.
+    /// </summary>
+    private void restartGameWhenAudioComplete()
+    {
+        if (restartGameReady && !restartSound.isPlaying)
+        {
+            Application.LoadLevel("GameScene");
+        }
+    }
 
     /// <summary>
     /// Displays the player's current score.
@@ -293,10 +315,12 @@ public class GameSystem : MonoBehaviour {
                 currentSpeed += new Vector3(0, speedDifficultyIncrease, 0);
             }
 
+            /*
             Debug.Log(currentSpawnRate);
             Debug.Log(currentCliffGap);
             Debug.Log(currentThreshhold);
             Debug.Log(currentSpeed.y);
+            */
         }
     }
 
@@ -415,7 +439,6 @@ public class GameSystem : MonoBehaviour {
         float totalChargeWidth = calculateTotalChargeWidth();
         float initialPlacement = Tools.worldToViewPointX(player.transform.position.x) - .5f * totalChargeWidth;
         float yLoc = Tools.worldToViewPointY(player.transform.position.y) - .055f;
-        Debug.Log(yLoc);
         int chargeNumber = 0;
         foreach(GameObject charge in charges)
         {
@@ -432,6 +455,19 @@ public class GameSystem : MonoBehaviour {
     private float calculateTotalChargeWidth()
     {
         return (maxCharges - 1) * gapBetweenCharges + (maxCharges * chargeSpriteWidth);
+    }
+
+
+    /// <summary>
+    /// Used to wipe player charges on death and destroy the sprite images.
+    /// </summary>
+    private void wipeCharges()
+    {
+        foreach(GameObject charge in charges)
+        {
+            Destroy(charge);
+        }
+        charges.Clear();
     }
 
     #endregion Charge System Functionality
@@ -495,13 +531,13 @@ public class GameSystem : MonoBehaviour {
 
             if (restartText.GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
             {
-                // Need to save here
-                Application.LoadLevel("GameScene");
+                AudioManager.playSound(restartSound);
+                restartGameReady = true;
             }
 
             if (mainMenuText.GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
             {
-                // Need to save here
+                AudioManager.playSound(menuReturnSound);
                 Application.LoadLevel("MainMenu");
             }
         }

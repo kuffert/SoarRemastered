@@ -18,13 +18,33 @@ public static class Tools {
     }
 
     /// <summary>
-    /// Constructs a Vector3 with a random Y scale.
+    /// Constructs a Vector3 with a random Y spawn location.
+    /// </summary>
+    /// <returns></returns>
+    public static Vector3 calculateRandomYVector()
+    {
+        float yLoc = Random.Range(1, 10) / 10f;
+        return Camera.main.ViewportToWorldPoint(new Vector3(0f, yLoc, 10f));
+    }
+
+    /// <summary>
+    /// Constructs a Vector3 with a random X scale.
     /// </summary>
     /// <returns></returns>
     public static Vector3 calculateRandomXScale(float minX, float maxX)
     {
         float xScale = Random.Range(minX*10f, maxX*10f) / 10f;
         return new Vector3(xScale, 1f, 1f);
+    }
+
+    /// <summary>
+    /// Constructs a Vector3 with a random Y scale.
+    /// </summary>
+    /// <returns></returns>
+    public static Vector3 calculateRandomYScale(float minY, float maxY)
+    {
+        float yScale = Random.Range(minY * 10f, maxY * 10f) / 10f;
+        return new Vector3(1f, yScale, 1f);
     }
 
     /// <summary>

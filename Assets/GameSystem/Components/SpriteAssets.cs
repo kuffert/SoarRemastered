@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Contains sprites utilized in code throughout the 
@@ -17,6 +17,12 @@ public class SpriteAssets : MonoBehaviour {
     public Sprite charge;
 
     public Sprite glider;
+
+    public Sprite creditsImage;
+
+    public List<Sprite> chargedAnimationSprites;
+    public List<Sprite> clouds;
+    public List<Sprite> deathAnimationSprites;
 
     public void Awake()
     {
