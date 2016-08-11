@@ -71,6 +71,7 @@ public class GameSystem : MonoBehaviour {
     private bool gameOver;
     private bool chargeSpawnedLast;
     private bool restartGameReady;
+    private bool spawnImmediately;
     private List<Collidable> collidables;
     private List<GameObject> charges;
 
@@ -112,6 +113,7 @@ public class GameSystem : MonoBehaviour {
         INVULNERABLE = false;
         chargeSpawnedLast = false;
         restartGameReady = false;
+        spawnImmediately = false;
 
         availableCharges = maxCharges;
         currentSpawnRate = initialSpawnRate;
@@ -385,7 +387,7 @@ public class GameSystem : MonoBehaviour {
             availableCharges = (availableCharges <= 1) ? 0 : availableCharges - 1;
             storedSpawnRate = currentSpawnRate;
             storedSpeed = currentSpeed;
-            currentSpawnRate = maxSpawnRate;
+            //currentSpawnRate /= 2;// score < maxDifficultyScore ? initialSpawnRate - (maxDifficultyScore - score) / maxDifficultyScore : maxSpawnRate;
             currentSpeed *= 2f;
         }
         else
@@ -479,7 +481,21 @@ public class GameSystem : MonoBehaviour {
     /// </summary>
     private void spawnCollidables()
     {
-        if (collidables.Count <= maxCollidables && Time.timeSinceLevelLoad >= timePassed)
+        if (INVULNERABLE && !spawnImmediately)
+        {
+            spawnImmediately = true;
+            timePassed += getRemainingInvulnTime();
+        }
+
+        if (!INVULNERABLE && spawnImmediately)
+        {
+            timePassed = Time.timeSinceLevelLoad;
+            timePassed += currentSpawnRate;
+            Collidable.generateCollidable(this);
+            spawnImmediately = false;
+        }
+
+        if (collidables.Count <= maxCollidables && Time.timeSinceLevelLoad >= timePassed && !spawnImmediately)
         {
             timePassed += currentSpawnRate;
             Collidable.generateCollidable(this);

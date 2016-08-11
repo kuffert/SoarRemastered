@@ -36,7 +36,9 @@ public class BackgroundClouds : MonoBehaviour {
         for (int i = 0; i < numberOfClouds; i++)
         {
             GameObject newCloud = generateNewCloud();
-            newCloud.transform.position += Tools.calculateRandomYVector();
+            float xval = newCloud.transform.position.x;
+            float yval = Tools.calculateRandomYVector().y;
+            newCloud.transform.position = new Vector3(xval, yval, 10f);
             cloudObjects.Add(newCloud);
         }
     }
@@ -75,7 +77,7 @@ public class BackgroundClouds : MonoBehaviour {
     {
         for (int i = 0; i < numberOfClouds; i++)
         {
-            if (cloudObjects[i].transform.position.y < Tools.viewToWorldPointY(-.1f))
+            if (cloudObjects[i].transform.position.y < Tools.viewToWorldPointY(-.3f))
             {
                 Destroy(cloudObjects[i]);
                 cloudObjects[i] = generateNewCloud();

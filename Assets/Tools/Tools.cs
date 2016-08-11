@@ -14,7 +14,7 @@ public static class Tools {
     public static Vector3 calculateRandomXVector()
     {
         float xLoc = Random.Range(1, 9) / 10f;
-        return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.1f, 10f));
+        return Camera.main.ViewportToWorldPoint(new Vector3(xLoc, 1.2f, 10f));
     }
 
     /// <summary>

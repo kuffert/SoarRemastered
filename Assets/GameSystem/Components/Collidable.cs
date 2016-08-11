@@ -48,7 +48,7 @@ public abstract class Collidable {
         }
 
         int cliffSelector = Random.Range(0, 2);
-        Vector3 cliffScale = Tools.calculateRandomXScale(1, yMax);
+        Vector3 cliffScale = Tools.calculateRandomXScale(yMax, 1.8f);
         switch (cliffSelector)
         {
             case 0:
