@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour {
     public GameObject optionsText;
     public GameObject creditsText;
     public GameObject scoresList;
-    public SpriteRenderer creditsImage;
+    public GameObject creditsList;
     public GameObject soundDisabledText;
     public GameObject musicDisabledText;
     public AudioSource menuSelectSound;
@@ -44,6 +44,7 @@ public class MainMenu : MonoBehaviour {
         scoresList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         musicDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         soundDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        creditsList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
     }
 
     void Update () {
@@ -93,12 +94,12 @@ public class MainMenu : MonoBehaviour {
     {
         if (showCredits)
         {
-            creditsImage.sprite = SpriteAssets.spriteAssets.creditsImage;
+            creditsList.GetComponent<TextMesh>().text = "Freesound Credits:\nFins\nJalastram\nDland\nBertrof\nPlasterbrain\nTheMusicalNomad";
         }
 
         else
         {
-            creditsImage.sprite = null;
+            creditsList.GetComponent<TextMesh>().text = "";
         }
     }
 
