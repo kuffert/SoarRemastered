@@ -33,8 +33,9 @@ public class GameSystem : MonoBehaviour {
 
     public int maxCharges;
     public int maxCollidables;
-    public float invulnDuration;
+    public int lastCliffSpawned;
 
+    public float invulnDuration;
     public float thresholdRange;
     public float initialThreshold;
     public float chargeThreshold;
@@ -67,7 +68,7 @@ public class GameSystem : MonoBehaviour {
     private float chargeSpriteWidth;
     private Vector3 currentSpeed;
     private Vector3 storedSpeed;
-    private int score;
+    private static int score;
     private bool gameOver;
     private bool chargeSpawnedLast;
     private bool restartGameReady;
@@ -79,6 +80,7 @@ public class GameSystem : MonoBehaviour {
     void Awake ()
     {
         // Places all text at screen-fitting positions.
+        playerSprite.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
         scoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .95f, 10f));
         finalScoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .9f, 10f));
         restartText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
@@ -161,6 +163,11 @@ public class GameSystem : MonoBehaviour {
 
     #region Accesssors and Public Functionality
 
+    public static int getScore()
+    {
+        return score;
+    }
+
     /// <summary>
     /// Retrieves the current gap between cliffs.
     /// </summary>
@@ -231,7 +238,11 @@ public class GameSystem : MonoBehaviour {
 
         else
         {
-            popAlert("Boost Charges Maxed");
+            popAlert("Charges Maxed: +5");
+            for (int i = 0; i < 5; i++)
+            {
+                increaseScore();
+            }
         }
     }
 
@@ -264,6 +275,11 @@ public class GameSystem : MonoBehaviour {
         PAUSE = true;
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
+        bool anyAchievementsEarned = UserData.userData.checkAllAchievements();
+        if (anyAchievementsEarned)
+        {
+            scoreText.GetComponent<TextMesh>().text = "Achievement Earned!";
+        }
         UserData.userData.addNewScore(score);
         UserData.userData.Save();
         finalScoreText.AddComponent<BoxCollider>();

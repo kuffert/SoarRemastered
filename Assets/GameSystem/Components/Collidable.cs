@@ -48,15 +48,21 @@ public abstract class Collidable {
         }
 
         int cliffSelector = Random.Range(0, 2);
-        Vector3 cliffScale = Tools.calculateRandomXScale(yMax, 1.8f);
+        if (cliffSelector == gameSystem.lastCliffSpawned)
+        {
+            cliffSelector = cliffSelector == 0 ? 1 : 0;
+        }
+        Vector3 cliffScale = Tools.calculateRandomXScale(1.4f, 1.65f);
         switch (cliffSelector)
         {
             case 0:
                 gameSystem.addCollidable(new LeftCliff(cliffScale));
+                gameSystem.lastCliffSpawned = 0;
                 break;
 
             case 1:
                 gameSystem.addCollidable(new RightCliff(cliffScale));
+                gameSystem.lastCliffSpawned = 1;
                 break;
         }
         gameSystem.setChargeSpawnedLast(false);

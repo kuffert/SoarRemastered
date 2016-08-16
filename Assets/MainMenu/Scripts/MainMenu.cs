@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Controls the main menu, including game start, scores,
@@ -12,10 +12,13 @@ public class MainMenu : MonoBehaviour {
     public GameObject scoresText;
     public GameObject optionsText;
     public GameObject creditsText;
+    public GameObject gliderSkinsText;
     public GameObject scoresList;
     public GameObject creditsList;
     public GameObject soundDisabledText;
     public GameObject musicDisabledText;
+    public GameObject glider;
+    public GameObject gliderDescriptionText;
     public AudioSource menuSelectSound;
     public AudioSource menuBackSound;
     public AudioSource musicSelectSound;
@@ -25,14 +28,20 @@ public class MainMenu : MonoBehaviour {
     private bool showOptions = false;
     private bool showCredits = false;
     private bool beginGameReady = false;
+    private bool showGliderSkins = false;
+    private List<GameObject> gliderButtons;
 
     void Start () {
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
+        glider.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
         titleText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .90f, 10f));
         startText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
         scoresText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
         optionsText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .25f, 10f));
+        gliderSkinsText.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .1f, 10f));
+        gliderDescriptionText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .4f, 10f));
+        creditsText.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .1f, 10f));
         scoresList.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         musicDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         soundDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
@@ -41,10 +50,13 @@ public class MainMenu : MonoBehaviour {
         scoresText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         optionsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         creditsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        gliderSkinsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        gliderDescriptionText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         musicDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         soundDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         creditsList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        gliderButtons = new List<GameObject>();
     }
 
     void Update () {
@@ -104,6 +116,66 @@ public class MainMenu : MonoBehaviour {
     }
 
     /// <summary>
+    /// Show the locked and unlocked glider skins.
+    /// </summary>
+    private void showAchievements()
+    {
+        float xLoc = .18f;
+        float yLoc = .7f;
+        UserData.userData.Load();
+        for (int i = 0; i < UserData.userData.getAchievements().Count; i++)
+        {
+            GameObject achievementSprite = new GameObject();
+            if (UserData.userData.getAchievements()[i].isUnlocked())
+            {
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex];
+            }
+            else
+            {
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.lockedGlider;
+            }
+            achievementSprite.AddComponent<BoxCollider>();
+            achievementSprite.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+            achievementSprite.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10.0f));
+            xLoc = xLoc >= .8f ? .18f : xLoc + .22f;
+            yLoc = i >= 4 ? .5f : .7f;
+            gliderButtons.Add(achievementSprite);
+        }
+    }
+
+    /// <summary>
+    /// Unshow the locked and unlocked glider skins.
+    /// </summary>
+    private void unshowAchievements()
+    {
+        foreach(GameObject achievement in gliderButtons)
+        {
+            Destroy(achievement);
+        }
+        gliderButtons.Clear();
+    }
+
+    /// <summary>
+    /// Updates the currently selected skin.
+    /// </summary>
+    private void updateSelectedSkin(Ray ray, RaycastHit hit)
+    {
+        for(int i = 0; i < gliderButtons.Count; i++)
+        {
+            if (gliderButtons[i].GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
+            {
+                gliderDescriptionText.GetComponent<TextMesh>().text = UserData.userData.getAchievements()[i].flavorText;
+                if (UserData.userData.getAchievements()[i].isUnlocked())
+                {
+                    UserData.userData.setGliderSkinIndex(i);
+                    glider.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[i];
+                    UserData.userData.Save();
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Allows the game to start once the start audio has completed
     /// </summary>
     private void beginGameAfterAudioComplete()
@@ -137,11 +209,15 @@ public class MainMenu : MonoBehaviour {
                 {
                     AudioManager.playSound(menuSelectSound);
                     showScores = true;
-                    showOptions = false;
-                    showCredits = false;
                     scoresText.GetComponent<TextMesh>().text = "Back";
-                    optionsText.GetComponent<TextMesh>().text = "Options";
-                    creditsText.GetComponent<TextMesh>().text = "Credits";
+                    startText.GetComponent<TextMesh>().text = "";
+                    startText.GetComponent<BoxCollider>().enabled = false;
+                    optionsText.GetComponent<TextMesh>().text = "";
+                    optionsText.GetComponent<BoxCollider>().enabled = false;
+                    creditsText.GetComponent<TextMesh>().text = "";
+                    creditsText.GetComponent<BoxCollider>().enabled = false;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = false;
                 }
 
                 else
@@ -149,8 +225,14 @@ public class MainMenu : MonoBehaviour {
                     AudioManager.playSound(menuBackSound);
                     showScores = false;
                     scoresText.GetComponent<TextMesh>().text = "Scores";
+                    startText.GetComponent<TextMesh>().text = "Start";
+                    startText.GetComponent<BoxCollider>().enabled = true;
                     optionsText.GetComponent<TextMesh>().text = "Options";
+                    optionsText.GetComponent<BoxCollider>().enabled = true;
                     creditsText.GetComponent<TextMesh>().text = "Credits";
+                    creditsText.GetComponent<BoxCollider>().enabled = true;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "Gliders";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = true;
                 }
             }
 
@@ -160,11 +242,15 @@ public class MainMenu : MonoBehaviour {
                 {
                     AudioManager.playSound(menuSelectSound);
                     showOptions = true;
-                    showScores = false;
-                    showCredits = false;
                     optionsText.GetComponent<TextMesh>().text = "Back";
-                    scoresText.GetComponent<TextMesh>().text = "Scores";
-                    creditsText.GetComponent<TextMesh>().text = "Credits";
+                    startText.GetComponent<TextMesh>().text = "";
+                    startText.GetComponent<BoxCollider>().enabled = false;
+                    scoresText.GetComponent<TextMesh>().text = "";
+                    scoresText.GetComponent<BoxCollider>().enabled = false;
+                    creditsText.GetComponent<TextMesh>().text = "";
+                    creditsText.GetComponent<BoxCollider>().enabled = false;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = false;
                 }
 
                 else
@@ -172,8 +258,14 @@ public class MainMenu : MonoBehaviour {
                     AudioManager.playSound(menuBackSound);
                     showOptions = false;
                     optionsText.GetComponent<TextMesh>().text = "Options";
+                    startText.GetComponent<TextMesh>().text = "Start";
+                    startText.GetComponent<BoxCollider>().enabled = true;
                     scoresText.GetComponent<TextMesh>().text = "Scores";
+                    scoresText.GetComponent<BoxCollider>().enabled = true;
                     creditsText.GetComponent<TextMesh>().text = "Credits";
+                    creditsText.GetComponent<BoxCollider>().enabled = true;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "Gliders";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = true;
                 }
             }
 
@@ -182,24 +274,70 @@ public class MainMenu : MonoBehaviour {
                 if (!showCredits)
                 {
                     AudioManager.playSound(menuSelectSound);
-                    showOptions = false;
-                    showScores = false;
                     showCredits = true;
-                    startText.GetComponent<TextMesh>().text = "";
-                    optionsText.GetComponent<TextMesh>().text = "";
-                    scoresText.GetComponent<TextMesh>().text = "";
                     creditsText.GetComponent<TextMesh>().text = "Back";
+                    startText.GetComponent<TextMesh>().text = "";
+                    startText.GetComponent<BoxCollider>().enabled = false;
+                    optionsText.GetComponent<TextMesh>().text = "";
+                    optionsText.GetComponent<BoxCollider>().enabled = false;
+                    scoresText.GetComponent<TextMesh>().text = "";
+                    scoresText.GetComponent<BoxCollider>().enabled = false;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = false;
                 }
                 else
                 {
                     AudioManager.playSound(menuBackSound);
                     showCredits = false;
-                    startText.GetComponent<TextMesh>().text = "Start";
-                    optionsText.GetComponent<TextMesh>().text = "Options";
-                    scoresText.GetComponent<TextMesh>().text = "Scores";
                     creditsText.GetComponent<TextMesh>().text = "Credits";
+                    startText.GetComponent<TextMesh>().text = "Start";
+                    startText.GetComponent<BoxCollider>().enabled = true;
+                    optionsText.GetComponent<TextMesh>().text = "Options";
+                    optionsText.GetComponent<BoxCollider>().enabled = true;
+                    scoresText.GetComponent<TextMesh>().text = "Scores";
+                    scoresText.GetComponent<BoxCollider>().enabled = true;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "Gliders";
+                    gliderSkinsText.GetComponent<BoxCollider>().enabled = true;
                 }
             }
+
+            if (gliderSkinsText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F))
+            {
+                if (!showGliderSkins)
+                {
+                    AudioManager.playSound(menuSelectSound);
+                    showGliderSkins = true;
+                    gliderSkinsText.GetComponent<TextMesh>().text = "back";
+                    startText.GetComponent<TextMesh>().text = "";
+                    startText.GetComponent<BoxCollider>().enabled = false;
+                    optionsText.GetComponent<TextMesh>().text = "";
+                    optionsText.GetComponent<BoxCollider>().enabled = false;
+                    scoresText.GetComponent<TextMesh>().text = "";
+                    scoresText.GetComponent<BoxCollider>().enabled = false;
+                    creditsText.GetComponent<TextMesh>().text = "";
+                    creditsText.GetComponent<BoxCollider>().enabled = false;
+                    showAchievements();
+                }
+
+                else
+                {
+                    AudioManager.playSound(menuBackSound);
+                    showGliderSkins = false;
+                    gliderDescriptionText.GetComponent<TextMesh>().text = "";
+                    gliderSkinsText.GetComponent<TextMesh>().text = "Gliders";
+                    startText.GetComponent<TextMesh>().text = "Start";
+                    startText.GetComponent<BoxCollider>().enabled = true;
+                    optionsText.GetComponent<TextMesh>().text = "Options";
+                    optionsText.GetComponent<BoxCollider>().enabled = true;
+                    scoresText.GetComponent<TextMesh>().text = "Scores";
+                    scoresText.GetComponent<BoxCollider>().enabled = true;
+                    creditsText.GetComponent<TextMesh>().text = "Credits";
+                    creditsText.GetComponent<BoxCollider>().enabled = true;
+                    unshowAchievements();
+                }
+            }
+
+            updateSelectedSkin(ray, hit);
 
             if (soundDisabledText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F) && showOptions)
             {
