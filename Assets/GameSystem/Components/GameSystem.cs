@@ -54,7 +54,7 @@ public class GameSystem : MonoBehaviour {
     public Vector3 initialSpeed;
     public Vector3 maxSpeed;
 
-    private int availableCharges;
+    private static int availableCharges;
     private float remainingInvulnTime;
     private float currentThreshhold;
     private float currentSpawnRate;
@@ -80,7 +80,6 @@ public class GameSystem : MonoBehaviour {
     void Awake ()
     {
         // Places all text at screen-fitting positions.
-        playerSprite.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
         scoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .95f, 10f));
         finalScoreText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .9f, 10f));
         restartText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
@@ -102,6 +101,7 @@ public class GameSystem : MonoBehaviour {
 
 	void Start ()
     {
+        playerSprite.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
@@ -163,9 +163,18 @@ public class GameSystem : MonoBehaviour {
 
     #region Accesssors and Public Functionality
 
+    /// <summary>
+    /// Retrieve the score of the game.
+    /// </summary>
+    /// <returns></returns>
     public static int getScore()
     {
         return score;
+    }
+
+    public static int getAvailableCharges()
+    {
+        return availableCharges;
     }
 
     /// <summary>
@@ -278,7 +287,9 @@ public class GameSystem : MonoBehaviour {
         bool anyAchievementsEarned = UserData.userData.checkAllAchievements();
         if (anyAchievementsEarned)
         {
+            scoreText.GetComponent<TextMesh>().fontSize = 100;
             scoreText.GetComponent<TextMesh>().text = "Achievement Earned!";
+
         }
         UserData.userData.addNewScore(score);
         UserData.userData.Save();

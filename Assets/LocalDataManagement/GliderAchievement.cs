@@ -49,7 +49,7 @@ public abstract class GliderAchievement {
     }
 
     /// <summary>
-    /// The first achievement is a glider earned by achieving a score above a particular threshold.
+    /// The first achievement is a glider earned by achieving a score above a low threshold.
     /// </summary>
     [Serializable]
     public class ScoreAchievementOne : GliderAchievement
@@ -72,5 +72,141 @@ public abstract class GliderAchievement {
         }
     }
 
+    /// <summary>
+    /// The second achievement is a glider earned by achieving a score above a medium threshold.
+    /// </summary>
+    public class ScoreAchievementTwo : GliderAchievement
+    {
+        public ScoreAchievementTwo()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 75";
+            skinIndex = 2;
+        }
 
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 75 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The third achievement is a glider earned by achieving a score above a high threshold.
+    /// </summary>
+    public class ScoreAchievementThree : GliderAchievement
+    {
+        public ScoreAchievementThree()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 100";
+            skinIndex = 3;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 100 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The fourth achievement is a glider earned by achieving a score above a very high threshold.
+    /// </summary>
+    public class ScoreAchievementFour : GliderAchievement
+    {
+        public ScoreAchievementFour()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 150";
+            skinIndex = 4;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 150 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The fifth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
+    /// </summary>
+    public class chargeAchievementOne : GliderAchievement
+    {
+        public chargeAchievementOne()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 75 with max charges";
+            skinIndex = 5;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 75 && GameSystem.getAvailableCharges() == 3 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The sixth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
+    /// </summary>
+    public class chargeAchievementTwo : GliderAchievement
+    {
+        public chargeAchievementTwo()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 100 with max charges";
+            skinIndex = 6;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 100 && GameSystem.getAvailableCharges() == 3 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The seventh achievement is a glider earned by achieving a score above a high threshold with maximum boost charges. 
+    /// </summary>
+    public class chargeAchievementThree : GliderAchievement
+    {
+        public chargeAchievementThree()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 125 with max charges";
+            skinIndex = 7;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 125 && GameSystem.getAvailableCharges() == 3 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
 }
