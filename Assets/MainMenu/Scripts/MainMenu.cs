@@ -138,7 +138,7 @@ public class MainMenu : MonoBehaviour {
             achievementSprite.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
             achievementSprite.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10.0f));
             xLoc = xLoc >= .8f ? .18f : xLoc + .22f;
-            yLoc = i >= 4 ? .5f : .7f;
+            yLoc = i >= 3 ? .5f : .7f;
             gliderButtons.Add(achievementSprite);
         }
     }

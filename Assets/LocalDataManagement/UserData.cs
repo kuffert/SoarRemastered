@@ -19,9 +19,6 @@ public class UserData : MonoBehaviour {
     private bool musicDisabled;
     private int gliderSkinIndex;
 
-    private GliderAchievement defaultGlider;
-    private GliderAchievement achievementOne;
-
     private List<GliderAchievement> achievements;
 
     void Awake()
@@ -31,13 +28,26 @@ public class UserData : MonoBehaviour {
             DontDestroyOnLoad(gameObject);
             Load();
             highScores = highScores == null ? new int[5] : highScores;
-            defaultGlider = defaultGlider == null ? new GliderAchievement.DefaultAchievement() : defaultGlider;
-            achievementOne = achievementOne == null ? new GliderAchievement.ScoreAchievementOne() : achievementOne;
+            
             if (achievements == null)
             {
+                GliderAchievement defaultGlider = new GliderAchievement.DefaultAchievement();
+                GliderAchievement achievementOne = new GliderAchievement.ScoreAchievementOne();
+                GliderAchievement achievementTwo = new GliderAchievement.ScoreAchievementTwo();
+                GliderAchievement achievementThree = new GliderAchievement.ScoreAchievementThree();
+                GliderAchievement achievementFour = new GliderAchievement.ScoreAchievementFour();
+                GliderAchievement achievementFive = new GliderAchievement.chargeAchievementOne();
+                GliderAchievement achievementSix = new GliderAchievement.chargeAchievementTwo();
+                GliderAchievement achievementSeven = new GliderAchievement.chargeAchievementThree();
                 achievements = new List<GliderAchievement>();
                 achievements.Add(defaultGlider);
                 achievements.Add(achievementOne);
+                achievements.Add(achievementTwo);
+                achievements.Add(achievementThree);
+                achievements.Add(achievementFour);
+                achievements.Add(achievementFive);
+                achievements.Add(achievementSix);
+                achievements.Add(achievementSeven);
             }
             userData = this;
         }
@@ -52,8 +62,6 @@ public class UserData : MonoBehaviour {
     public bool getSoundDisabled() { return soundDisabled; }
     public bool getMusicDisabled() { return musicDisabled; }
     public int getGliderSkinIndex() { return gliderSkinIndex;  }
-    public GliderAchievement getDefaultAchievement() { return defaultGlider; }
-    public GliderAchievement getAchievementOne() { return achievementOne; }
 
     public List<GliderAchievement> getAchievements() { return achievements; }
 
@@ -61,8 +69,6 @@ public class UserData : MonoBehaviour {
     public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
     public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
     public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
-    public void setDefaultAchievement(GliderAchievement defaultGlider) { this.defaultGlider = defaultGlider; }
-    public void setAchievementOne(GliderAchievement achievementOne) { this.achievementOne = achievementOne; }
 
     public void setAchievementsList(List<GliderAchievement> achievements) { this.achievements = achievements; }
 
@@ -142,7 +148,13 @@ public class UserData : MonoBehaviour {
     /// </summary>
     public bool checkAllAchievements()
     {
-        return achievementOne.checkUnlockRequirements();
+        bool finalOutcome = false;
+        foreach(GliderAchievement achievement in achievements)
+        {
+            bool outcome = achievement.checkUnlockRequirements();
+            finalOutcome = finalOutcome ? finalOutcome : outcome;
+        }
+        return finalOutcome;
     }
 
     /// <summary>
@@ -151,7 +163,7 @@ public class UserData : MonoBehaviour {
     public void Save()
     {
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/GameData.dat");
+        FileStream file = File.Create(Application.persistentDataPath + "/UserData.dat");
         LocalData data = new LocalData();
         data.saveLocalData(this);
         bf.Serialize(file, data);
@@ -163,10 +175,10 @@ public class UserData : MonoBehaviour {
     /// </summary>
     public void Load()
     {
-        if (File.Exists(Application.persistentDataPath + "/GameData.dat"))
+        if (File.Exists(Application.persistentDataPath + "/UserData.dat"))
         {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/GameData.dat", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + "/UserData.dat", FileMode.Open);
             LocalData data = (LocalData)bf.Deserialize(file);
             file.Close();
             data.loadLocalData(this);
@@ -183,16 +195,12 @@ public class UserData : MonoBehaviour {
         private bool soundDisabled;
         private bool musicDisabled;
         private int gliderSkinIndex;
-        private GliderAchievement defaultGlider;
-        private GliderAchievement achievementOne;
         private List<GliderAchievement> achievements;
 
         public int[] getHighScores() { return highScores; }
         public bool getSoundDisabled() { return soundDisabled; }
         public bool getMusicDisabled() { return musicDisabled; }
         public int getGliderSkinIndex() { return gliderSkinIndex; }
-        public GliderAchievement getDefaultAchievement() { return defaultGlider; }
-        public GliderAchievement getAchievementOne() { return achievementOne; }
 
         public List<GliderAchievement> getAchievements() { return achievements; }
 
@@ -200,8 +208,6 @@ public class UserData : MonoBehaviour {
         public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
         public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
         public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
-        public void setDefaultAchievement(GliderAchievement defaultGlider) { this.defaultGlider = defaultGlider; }
-        public void setAchievementOne(GliderAchievement achievementOne) { this.achievementOne = achievementOne; }
 
         public void setAchievementsList(List<GliderAchievement> achievements) { this.achievements = achievements; }
 
@@ -215,8 +221,6 @@ public class UserData : MonoBehaviour {
             setSoundDisabled(userData.getSoundDisabled());
             setMusicDisabled(userData.getMusicDisabled());
             setGliderSkinIndex(userData.getGliderSkinIndex());
-            setDefaultAchievement(userData.getDefaultAchievement());
-            setAchievementOne(userData.getAchievementOne());
 
             setAchievementsList(userData.getAchievements());
         }
@@ -232,8 +236,6 @@ public class UserData : MonoBehaviour {
             userData.setSoundDisabled(getSoundDisabled());
             userData.setMusicDisabled(getMusicDisabled());
             userData.setGliderSkinIndex(getGliderSkinIndex());
-            userData.setDefaultAchievement(defaultGlider == null? new GliderAchievement.DefaultAchievement() : getDefaultAchievement());
-            userData.setAchievementOne(achievementOne == null? new GliderAchievement.ScoreAchievementOne() : getAchievementOne());
 
             List <GliderAchievement> achievementsList = getAchievements();
             userData.setAchievementsList(achievementsList == null? new List<GliderAchievement>() : achievementsList);

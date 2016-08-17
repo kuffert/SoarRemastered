@@ -75,6 +75,7 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The second achievement is a glider earned by achieving a score above a medium threshold.
     /// </summary>
+    [Serializable]
     public class ScoreAchievementTwo : GliderAchievement
     {
         public ScoreAchievementTwo()
@@ -98,6 +99,7 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The third achievement is a glider earned by achieving a score above a high threshold.
     /// </summary>
+    [Serializable]
     public class ScoreAchievementThree : GliderAchievement
     {
         public ScoreAchievementThree()
@@ -121,6 +123,7 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The fourth achievement is a glider earned by achieving a score above a very high threshold.
     /// </summary>
+    [Serializable]
     public class ScoreAchievementFour : GliderAchievement
     {
         public ScoreAchievementFour()
@@ -144,12 +147,13 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The fifth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
     /// </summary>
+    [Serializable]
     public class chargeAchievementOne : GliderAchievement
     {
         public chargeAchievementOne()
         {
             unlocked = false;
-            flavorText = "Earn a score of 75 with max charges";
+            flavorText = "score a 75 with max charges";
             skinIndex = 5;
         }
 
@@ -167,12 +171,13 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The sixth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
     /// </summary>
+    [Serializable]
     public class chargeAchievementTwo : GliderAchievement
     {
         public chargeAchievementTwo()
         {
             unlocked = false;
-            flavorText = "Earn a score of 100 with max charges";
+            flavorText = "score a 100 with max charges";
             skinIndex = 6;
         }
 
@@ -190,12 +195,13 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The seventh achievement is a glider earned by achieving a score above a high threshold with maximum boost charges. 
     /// </summary>
+    [Serializable]
     public class chargeAchievementThree : GliderAchievement
     {
         public chargeAchievementThree()
         {
             unlocked = false;
-            flavorText = "Earn a score of 125 with max charges";
+            flavorText = "score a 125 with max charges";
             skinIndex = 7;
         }
 
