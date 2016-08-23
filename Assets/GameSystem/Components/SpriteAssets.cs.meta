@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 7f486475b015c7e43bc7d6ab30d47aa2
-timeCreated: 1452116073
+timeCreated: 1471969096
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
@@ -10,7 +10,18 @@ MonoImporter:
   - rightCliff: {fileID: 21300000, guid: 0c6d76112e066424aae8ec4244a9ab0f, type: 3}
   - emptyCharge: {fileID: 21300000, guid: 7d9fb7edf82fc3c42832e13a51e9f1fa, type: 3}
   - charge: {fileID: 21300000, guid: 3f3947038e470304392c7f0adff7225c, type: 3}
-  - glider: {fileID: 21300000, guid: a57664ae8ac1154439726ff26100945d, type: 3}
+  - lockedGlider: {fileID: 21300000, guid: c7e62ef62843f00408e96ce801442645, type: 3}
+  - gliderDefault: {fileID: 21300000, guid: a57664ae8ac1154439726ff26100945d, type: 3}
+  - gliderOneSkin: {fileID: 21300000, guid: 2c7452a3b0da5944889c27fef5947482, type: 3}
+  - gliderTwoSkin: {fileID: 21300000, guid: fee02455587b5dd499cb0fe6ee340467, type: 3}
+  - gliderThreeSkin: {fileID: 21300000, guid: 876a6876b6b4f9e45a9295c3f77a88ba, type: 3}
+  - gliderFourSkin: {fileID: 21300000, guid: 85e83fb5078436a4c82e2bf68fa6b07b, type: 3}
+  - gliderFiveSkin: {fileID: 21300000, guid: 04648930f66900140a91f3a194777232, type: 3}
+  - gliderSixSkin: {fileID: 21300000, guid: 7b2dbfed21a987d4a9baa650a1fc6177, type: 3}
+  - gliderSevenSkin: {fileID: 21300000, guid: 42042a3709cd89e4d9194edf4a8dd255, type: 3}
+  - gliderEightSkin: {fileID: 21300000, guid: 3aca276269cc2eb47aac8dc72d14ed88, type: 3}
+  - gliderNineSkin: {fileID: 21300000, guid: 607cf89533c109140a3b1decd6bb83cc, type: 3}
+  - gliderTenSkin: {fileID: 21300000, guid: ecc825c9759afc546aa69ca01aa722bf, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

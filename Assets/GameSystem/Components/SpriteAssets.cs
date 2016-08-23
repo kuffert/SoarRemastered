@@ -25,13 +25,16 @@ public class SpriteAssets : MonoBehaviour {
     public Sprite gliderFiveSkin;
     public Sprite gliderSixSkin;
     public Sprite gliderSevenSkin;
+    public Sprite gliderEightSkin;
+    public Sprite gliderNineSkin;
+    public Sprite gliderTenSkin;
 
-    public Sprite creditsImage;
-
+    public List<Sprite> cumulativeAchievementGliderTenFrameCycle;
     public List<Sprite> chargedAnimationSprites;
     public List<Sprite> clouds;
     public List<Sprite> deathAnimationSprites;
     public List<Sprite> allGliders;
+    
 
     public void Awake()
     {
@@ -43,6 +46,9 @@ public class SpriteAssets : MonoBehaviour {
         allGliders.Add(gliderFiveSkin);
         allGliders.Add(gliderSixSkin);
         allGliders.Add(gliderSevenSkin);
+        allGliders.Add(gliderEightSkin);
+        allGliders.Add(gliderNineSkin);
+        allGliders.Add(gliderTenSkin);
         spriteAssets = this;
     }
 }

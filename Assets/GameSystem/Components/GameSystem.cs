@@ -55,6 +55,9 @@ public class GameSystem : MonoBehaviour {
     public Vector3 maxSpeed;
 
     private static int availableCharges;
+    private static int maximumCharges;
+    private static int cliffsPassedWithoutBoost;
+    private static bool specialAchievementOneCheck;
     private float remainingInvulnTime;
     private float currentThreshhold;
     private float currentSpawnRate;
@@ -109,6 +112,8 @@ public class GameSystem : MonoBehaviour {
         collidables = new List<Collidable>();
         charges = new List<GameObject>();
         populateCharges();
+        maximumCharges = maxCharges;
+        specialAchievementOneCheck = false;
 
         gameOver = false;
         PAUSE = false;
@@ -172,9 +177,22 @@ public class GameSystem : MonoBehaviour {
         return score;
     }
 
-    public static int getAvailableCharges()
+    /// <summary>
+    /// Retrieve the special achievement one check.
+    /// </summary>
+    /// <returns></returns>
+    public static bool checkSpecialAchievementOne()
     {
-        return availableCharges;
+        return specialAchievementOneCheck;
+    }
+
+    /// <summary>
+    /// Returns true if the player currently has their charges maxed
+    /// </summary>
+    /// <returns></returns>
+    public static bool chargesMaxed()
+    {
+        return availableCharges == maximumCharges;
     }
 
     /// <summary>
@@ -416,6 +434,7 @@ public class GameSystem : MonoBehaviour {
             storedSpeed = currentSpeed;
             //currentSpawnRate /= 2;// score < maxDifficultyScore ? initialSpawnRate - (maxDifficultyScore - score) / maxDifficultyScore : maxSpawnRate;
             currentSpeed *= 2f;
+            cliffsPassedWithoutBoost = 0;
         }
         else
         {
@@ -500,6 +519,23 @@ public class GameSystem : MonoBehaviour {
     }
 
     #endregion Charge System Functionality
+
+    #region Achievement Functionality
+
+    /// <summary>
+    /// Increments the number of cliffs passed without using a boost
+    /// </summary>
+    public void incrementCliffsPassedAndCheckAchievement()
+    {
+        cliffsPassedWithoutBoost++;
+        if (cliffsPassedWithoutBoost >= 100)
+        {
+            specialAchievementOneCheck = true;
+        }
+    }
+
+
+    #endregion Achievement Functionality
 
     #region Collidable Management
 

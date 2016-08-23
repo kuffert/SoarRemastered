@@ -39,6 +39,9 @@ public class UserData : MonoBehaviour {
                 GliderAchievement achievementFive = new GliderAchievement.chargeAchievementOne();
                 GliderAchievement achievementSix = new GliderAchievement.chargeAchievementTwo();
                 GliderAchievement achievementSeven = new GliderAchievement.chargeAchievementThree();
+                GliderAchievement achievementEight = new GliderAchievement.specialAcheivementOne();
+                GliderAchievement achievementNine = new GliderAchievement.specialAchievementTwo();
+                GliderAchievement achievementTen = new GliderAchievement.ScoreAchievementFive();
                 achievements = new List<GliderAchievement>();
                 achievements.Add(defaultGlider);
                 achievements.Add(achievementOne);
@@ -48,13 +51,16 @@ public class UserData : MonoBehaviour {
                 achievements.Add(achievementFive);
                 achievements.Add(achievementSix);
                 achievements.Add(achievementSeven);
+                achievements.Add(achievementEight);
+                achievements.Add(achievementNine);
+                achievements.Add(achievementTen);
             }
             userData = this;
         }
 
         else if (userData != this)
         {
-            Destroy(gameObject);
+            Destroy(gameObject);    
         }
     }
 
@@ -163,7 +169,7 @@ public class UserData : MonoBehaviour {
     public void Save()
     {
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/UserData.dat");
+        FileStream file = File.Create(Application.persistentDataPath + "/SoarMetadata.dat");
         LocalData data = new LocalData();
         data.saveLocalData(this);
         bf.Serialize(file, data);
@@ -175,10 +181,10 @@ public class UserData : MonoBehaviour {
     /// </summary>
     public void Load()
     {
-        if (File.Exists(Application.persistentDataPath + "/UserData.dat"))
+        if (File.Exists(Application.persistentDataPath + "/SoarMetadata.dat"))
         {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/UserData.dat", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + "/SoarMetadata.dat", FileMode.Open);
             LocalData data = (LocalData)bf.Deserialize(file);
             file.Close();
             data.loadLocalData(this);

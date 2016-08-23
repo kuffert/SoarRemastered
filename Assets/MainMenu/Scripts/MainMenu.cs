@@ -40,7 +40,7 @@ public class MainMenu : MonoBehaviour {
         scoresText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
         optionsText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .25f, 10f));
         gliderSkinsText.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .1f, 10f));
-        gliderDescriptionText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .4f, 10f));
+        gliderDescriptionText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         creditsText.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .1f, 10f));
         scoresList.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         musicDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
@@ -139,6 +139,7 @@ public class MainMenu : MonoBehaviour {
             achievementSprite.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10.0f));
             xLoc = xLoc >= .8f ? .18f : xLoc + .22f;
             yLoc = i >= 3 ? .5f : .7f;
+            yLoc = i >= 7 ? .3f : yLoc;
             gliderButtons.Add(achievementSprite);
         }
     }
