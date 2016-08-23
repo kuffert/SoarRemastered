@@ -42,6 +42,7 @@ public class UserData : MonoBehaviour {
                 GliderAchievement achievementEight = new GliderAchievement.specialAcheivementOne();
                 GliderAchievement achievementNine = new GliderAchievement.specialAchievementTwo();
                 GliderAchievement achievementTen = new GliderAchievement.ScoreAchievementFive();
+                GliderAchievement achievementEleven = new GliderAchievement.CumulativeAchievementOne();
                 achievements = new List<GliderAchievement>();
                 achievements.Add(defaultGlider);
                 achievements.Add(achievementOne);
@@ -54,6 +55,7 @@ public class UserData : MonoBehaviour {
                 achievements.Add(achievementEight);
                 achievements.Add(achievementNine);
                 achievements.Add(achievementTen);
+                achievements.Add(achievementEleven);
             }
             userData = this;
         }
@@ -161,6 +163,14 @@ public class UserData : MonoBehaviour {
             finalOutcome = finalOutcome ? finalOutcome : outcome;
         }
         return finalOutcome;
+    }
+
+    private void ADMINONLYUNLOCKALL()
+    {
+        foreach (GliderAchievement achievement in achievements)
+        {
+            achievement.ADMINONLYUNLOCKACHIEVEMENT();
+        }
     }
 
     /// <summary>

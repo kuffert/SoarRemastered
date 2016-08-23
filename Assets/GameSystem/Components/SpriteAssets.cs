@@ -16,39 +16,41 @@ public class SpriteAssets : MonoBehaviour {
     public Sprite emptyCharge;
     public Sprite charge;
 
-    public Sprite lockedGlider;
-    public Sprite gliderDefault;
-    public Sprite gliderOneSkin;
-    public Sprite gliderTwoSkin;
-    public Sprite gliderThreeSkin;
-    public Sprite gliderFourSkin;
-    public Sprite gliderFiveSkin;
-    public Sprite gliderSixSkin;
-    public Sprite gliderSevenSkin;
-    public Sprite gliderEightSkin;
-    public Sprite gliderNineSkin;
-    public Sprite gliderTenSkin;
-
-    public List<Sprite> cumulativeAchievementGliderTenFrameCycle;
+    public List<Sprite> lockedGliderFrames;
+    public List<Sprite> gliderDefaultFrames;
+    public List<Sprite> gliderOneFrames;
+    public List<Sprite> gliderTwoFrames;
+    public List<Sprite> gliderThreeFrames;
+    public List<Sprite> gliderFourFrames;
+    public List<Sprite> gliderFiveFrames;
+    public List<Sprite> gliderSixFrames;
+    public List<Sprite> gliderSevenFrames;
+    public List<Sprite> gliderEightFrames;
+    public List<Sprite> gliderNineFrames;
+    public List<Sprite> gliderTenFrames;
+    public List<Sprite> gliderElevenFrames;
+            
     public List<Sprite> chargedAnimationSprites;
     public List<Sprite> clouds;
     public List<Sprite> deathAnimationSprites;
-    public List<Sprite> allGliders;
+    public List<List<Sprite>> allGliders;
     
 
     public void Awake()
     {
-        allGliders.Add(gliderDefault);
-        allGliders.Add(gliderOneSkin);
-        allGliders.Add(gliderTwoSkin);
-        allGliders.Add(gliderThreeSkin);
-        allGliders.Add(gliderFourSkin);
-        allGliders.Add(gliderFiveSkin);
-        allGliders.Add(gliderSixSkin);
-        allGliders.Add(gliderSevenSkin);
-        allGliders.Add(gliderEightSkin);
-        allGliders.Add(gliderNineSkin);
-        allGliders.Add(gliderTenSkin);
+        allGliders = new List<List<Sprite>>();
+        allGliders.Add(gliderDefaultFrames);
+        allGliders.Add(gliderOneFrames);
+        allGliders.Add(gliderTwoFrames);
+        allGliders.Add(gliderThreeFrames);
+        allGliders.Add(gliderFourFrames);
+        allGliders.Add(gliderFiveFrames);
+        allGliders.Add(gliderSixFrames);
+        allGliders.Add(gliderSevenFrames);
+        allGliders.Add(gliderEightFrames);
+        allGliders.Add(gliderNineFrames);
+        allGliders.Add(gliderTenFrames);
+        allGliders.Add(gliderElevenFrames);
         spriteAssets = this;
     }
 }

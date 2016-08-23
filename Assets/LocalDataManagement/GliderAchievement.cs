@@ -29,6 +29,11 @@ public abstract class GliderAchievement {
         return unlocked;
     }
 
+    public void ADMINONLYUNLOCKACHIEVEMENT()
+    {
+        unlocked = true;
+    }
+
     /// <summary>
     /// The Default Achievement is the standard glider that is unlocked from the start. It has no requirements
     /// </summary>
@@ -148,6 +153,7 @@ public abstract class GliderAchievement {
     /// <summary>
     /// The fifth achievement is a glider earned by achieving a score above an extremely high threshold
     /// </summary>
+    [Serializable]
     public class ScoreAchievementFive : GliderAchievement
     {
         public ScoreAchievementFive()
@@ -288,6 +294,7 @@ public abstract class GliderAchievement {
         }
     }
 
+    [Serializable]
     public class CumulativeAchievementOne : GliderAchievement
     {
         public CumulativeAchievementOne()
@@ -300,13 +307,13 @@ public abstract class GliderAchievement {
 
         public override bool checkUnlockRequirements()
         {
-            bool result = true;
+            int totalUnlocks = 0;
             foreach (GliderAchievement achievement in UserData.userData.getAchievements())
             {
-                result = result && achievement.skinIndex > 0 && unlocked;
+                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
             }
 
-            unlocked = result;
+            unlocked = unlocked || totalUnlocks >= 10;
             return unlocked;
         }
     }

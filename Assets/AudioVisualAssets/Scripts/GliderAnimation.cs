@@ -2,24 +2,31 @@
 using System.Collections.Generic;
 
 public class GliderAnimation : MonoBehaviour {
-    public bool multiframe;
-    private List<Sprite> spriteCycle;
+    public static bool doAnimation;
+    public static List<Sprite> spriteCycle;
     private int framesPerSecond = 10;
 
     void Start()
     {
-        //spriteCycle = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
+        doAnimation = true;
+        spriteCycle = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
     }
 
     void Update()
     {
-        if (multiframe)
+        if (!doAnimation) { return; }
+        if (spriteCycle.Count > 1)
         {
             animateMultiframe();
         }
+        else
+        {
+            GetComponent<SpriteRenderer>().sprite = spriteCycle[0];
+        }
+
     }
 
-    public void setMultiFrameSprites(List<Sprite> sprites)
+    public static void setFrameCycle(List<Sprite> sprites)
     {
         spriteCycle = sprites;
     }

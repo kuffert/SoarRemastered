@@ -104,7 +104,8 @@ public class GameSystem : MonoBehaviour {
 
 	void Start ()
     {
-        playerSprite.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
+        GliderAnimation.doAnimation = true;
+        GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()]);
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
@@ -320,6 +321,7 @@ public class GameSystem : MonoBehaviour {
         playerSprite.AddComponent<CycleFrames>().sprites = SpriteAssets.spriteAssets.deathAnimationSprites;
         playerSprite.GetComponent<CycleFrames>().framesPerSecond = 6;
         playerSprite.GetComponent<CycleFrames>().loop = false;
+        GliderAnimation.doAnimation = false;
         wipeCharges();
     }
 

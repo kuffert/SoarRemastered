@@ -34,7 +34,7 @@ public class MainMenu : MonoBehaviour {
     void Start () {
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
-        glider.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
+        GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()]);
         titleText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .90f, 10f));
         startText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
         scoresText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
@@ -128,11 +128,11 @@ public class MainMenu : MonoBehaviour {
             GameObject achievementSprite = new GameObject();
             if (UserData.userData.getAchievements()[i].isUnlocked())
             {
-                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex];
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex][0];
             }
             else
             {
-                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.lockedGlider;
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.lockedGliderFrames[0];
             }
             achievementSprite.AddComponent<BoxCollider>();
             achievementSprite.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -169,7 +169,7 @@ public class MainMenu : MonoBehaviour {
                 if (UserData.userData.getAchievements()[i].isUnlocked())
                 {
                     UserData.userData.setGliderSkinIndex(i);
-                    glider.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[i];
+                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[i]);
                     UserData.userData.Save();
                 }
             }
