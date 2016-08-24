@@ -62,7 +62,8 @@ public class GameSystem : MonoBehaviour {
     private bool chargeUsed;
     private static int cliffsPassedWithoutBoost;
     private static bool specialAchievementOneCheck;
-    private float remainingInvulnTime;
+    private static float invulnDurationTime;
+    public static float remainingInvulnTime;
     private float currentThreshhold;
     private float currentSpawnRate;
     private float timePassed;
@@ -136,6 +137,7 @@ public class GameSystem : MonoBehaviour {
         currentSpeed = initialSpeed; 
         currentThreshhold = initialThreshold;
         currentCliffGap = maxCliffGap;
+        invulnDurationTime = invulnDuration;
 
         score = 0;  
         timePassed = 0f;
@@ -160,14 +162,14 @@ public class GameSystem : MonoBehaviour {
         {
             restartGameWhenAudioComplete();
             delegateNavigationFromTouch();
-            if (keyboard.active)
+            if ( keyboard != null && keyboard.active)
             {
                 keyboard.text = keyboard.text.Length > 3? keyboard.text.Substring(0, 3) : keyboard.text;
                 initialsInput = keyboard.text.Length > 3? keyboard.text.Substring(0, 3) : keyboard.text;
                 userInputText.GetComponent<TextMesh>().text = initialsInput;
             }
 
-            if (keyboard.done && !saved)
+            if (keyboard != null && keyboard.done && !saved)
             {
                 initialsInput = keyboard.text;
                 userInputText.GetComponent<TextMesh>().text = initialsInput.Substring(0, 3);
@@ -207,6 +209,16 @@ public class GameSystem : MonoBehaviour {
     public static bool checkSpecialAchievementOne()
     {
         return specialAchievementOneCheck;
+    }
+
+    /// <summary>
+    /// Retrieves the remaining invuln time
+    /// </summary>
+    /// <returns></returns>
+    public static float retrieveRemainingInvulnTimeRatio()
+    {
+        return (remainingInvulnTime - Time.timeSinceLevelLoad) / invulnDurationTime;
+       
     }
 
     /// <summary>
