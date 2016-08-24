@@ -14,7 +14,7 @@ using System.Collections.Generic;
 public class UserData : MonoBehaviour {
     public static UserData userData;
 
-    private int[] highScores;
+    private Score[] highScores;
     private bool soundDisabled;
     private bool musicDisabled;
     private int gliderSkinIndex;
@@ -27,7 +27,16 @@ public class UserData : MonoBehaviour {
         {
             DontDestroyOnLoad(gameObject);
             Load();
-            highScores = highScores == null ? new int[5] : highScores;
+            //highScores = highScores == null ? new Score[5]: highScores;
+            if (highScores == null)
+            {
+                highScores = new Score[5];
+                highScores[0] = new Score();
+                highScores[1] = new Score();
+                highScores[2] = new Score();
+                highScores[3] = new Score();
+                highScores[4] = new Score();
+            }
             
             if (achievements == null)
             {
@@ -66,14 +75,14 @@ public class UserData : MonoBehaviour {
         }
     }
 
-    public int[] getHighScores() { return highScores; }
+    public Score[] getHighScores() { return highScores; }
     public bool getSoundDisabled() { return soundDisabled; }
     public bool getMusicDisabled() { return musicDisabled; }
     public int getGliderSkinIndex() { return gliderSkinIndex;  }
 
     public List<GliderAchievement> getAchievements() { return achievements; }
 
-    public void setHighScores(int[] highScores) { this.highScores = highScores; }
+    public void setHighScores(Score[] highScores) { this.highScores = highScores; }
     public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
     public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
     public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
@@ -88,9 +97,9 @@ public class UserData : MonoBehaviour {
     {
         string scores = "";
         int rank = 1;
-        foreach (int score in highScores)
+        foreach (Score score in highScores)
         {
-            scores += rank + ": " + score + "\n";
+            scores += rank + ": " + score.initials + " " + score.score + " " + score.commendation + "\n";
             rank++;
         }
         return scores.Substring(0, scores.Length - 1);
@@ -101,11 +110,12 @@ public class UserData : MonoBehaviour {
     /// its rank amongst other high scores.
     /// </summary>
     /// <param name="score"></param>
-    public void addNewScore(int newScore)
+    public void addNewScore(int score, string initials, bool chargeUsed)
     {
-        int shiftIndex = findInitialShiftIndex(newScore);
+        int shiftIndex = findInitialShiftIndex(score);
         if (shiftIndex != -1)
         {
+            Score newScore = new Score(score, initials, chargeUsed ? "" : "[NB]");
             shiftScoresBelowIndex(newScore, shiftIndex);
         }
     }
@@ -120,7 +130,8 @@ public class UserData : MonoBehaviour {
         int initialShiftIndex = -1;
         for (int i = highScores.Length - 1; i >= 0; i--)
         {
-            if (score >= (int)highScores.GetValue(i))
+            Debug.Log(highScores.Length);
+            if (score >= ((Score)highScores.GetValue(i)).score)
             {
                 initialShiftIndex = i;
             }
@@ -133,7 +144,7 @@ public class UserData : MonoBehaviour {
     /// </summary>
     /// <param name="score">The new score value.</param>
     /// <param name="index">The initial index to begin shifting.</param>
-    private void shiftScoresBelowIndex(int score, int index)
+    private void shiftScoresBelowIndex(Score score, int index)
     {
         if (index >= highScores.Length || index < 0)
         {
@@ -141,11 +152,11 @@ public class UserData : MonoBehaviour {
             return;
         }
 
-        int shiftedScore;
-        int previousScore = score;
+        Score shiftedScore;
+        Score previousScore = score;
         for (int i = index; i < highScores.Length; i++)
         {
-            shiftedScore = (int)highScores.GetValue(i);
+            shiftedScore = (Score)highScores.GetValue(i);
             highScores.SetValue(previousScore, i);
             previousScore = shiftedScore;
         }
@@ -207,20 +218,20 @@ public class UserData : MonoBehaviour {
     [Serializable]
     private class LocalData
     {
-        private int[] highScores;
+        private Score[] highScores;
         private bool soundDisabled;
         private bool musicDisabled;
         private int gliderSkinIndex;
         private List<GliderAchievement> achievements;
 
-        public int[] getHighScores() { return highScores; }
+        public Score[] getHighScores() { return highScores; }
         public bool getSoundDisabled() { return soundDisabled; }
         public bool getMusicDisabled() { return musicDisabled; }
         public int getGliderSkinIndex() { return gliderSkinIndex; }
 
         public List<GliderAchievement> getAchievements() { return achievements; }
 
-        public void setHighScores(int[] highScores) { this.highScores = highScores; }
+        public void setHighScores(Score[] highScores) { this.highScores = highScores; }
         public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
         public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
         public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
@@ -247,14 +258,11 @@ public class UserData : MonoBehaviour {
         /// <param name="userData"></param>
         public void loadLocalData(UserData userData)
         {
-            int[] highScores = getHighScores();
-            userData.setHighScores(highScores == null ? new int[5]: highScores);
+            userData.setHighScores(getHighScores());
             userData.setSoundDisabled(getSoundDisabled());
             userData.setMusicDisabled(getMusicDisabled());
             userData.setGliderSkinIndex(getGliderSkinIndex());
-
-            List <GliderAchievement> achievementsList = getAchievements();
-            userData.setAchievementsList(achievementsList == null? new List<GliderAchievement>() : achievementsList);
+            userData.setAchievementsList(getAchievements());
         }
     }
 }

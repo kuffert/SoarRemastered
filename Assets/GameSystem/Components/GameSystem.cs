@@ -19,6 +19,9 @@ public class GameSystem : MonoBehaviour {
     public GameObject leftCliffText;
     public GameObject rightCliffText;
     public GameObject alertText;
+    public GameObject userInputText;
+
+    private TouchScreenKeyboard keyboard;
 
     public AudioSource cliffPassedSound;
     public AudioSource coinPickupSound;
@@ -56,6 +59,7 @@ public class GameSystem : MonoBehaviour {
 
     private static int availableCharges;
     private static int maximumCharges;
+    private bool chargeUsed;
     private static int cliffsPassedWithoutBoost;
     private static bool specialAchievementOneCheck;
     private float remainingInvulnTime;
@@ -78,6 +82,8 @@ public class GameSystem : MonoBehaviour {
     private bool spawnImmediately;
     private List<Collidable> collidables;
     private List<GameObject> charges;
+    private string initialsInput = "AAA";
+    private bool saved = false;
 
     #region Startup And Update
     void Awake ()
@@ -90,6 +96,7 @@ public class GameSystem : MonoBehaviour {
         leftCliffText.transform.position = Tools.viewToWorldVector(new Vector3(.1f, .075f, 10f));
         rightCliffText.transform.position = Tools.viewToWorldVector(new Vector3(.9f, .075f, 10f));
         alertText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
+        userInputText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .6f, 10f));
         scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -122,6 +129,7 @@ public class GameSystem : MonoBehaviour {
         chargeSpawnedLast = false;
         restartGameReady = false;
         spawnImmediately = false;
+        chargeUsed = false;
 
         availableCharges = maxCharges;
         currentSpawnRate = initialSpawnRate;
@@ -152,6 +160,21 @@ public class GameSystem : MonoBehaviour {
         {
             restartGameWhenAudioComplete();
             delegateNavigationFromTouch();
+            if (keyboard.active)
+            {
+                keyboard.text = keyboard.text.Length > 3? keyboard.text.Substring(0, 3) : keyboard.text;
+                initialsInput = keyboard.text.Length > 3? keyboard.text.Substring(0, 3) : keyboard.text;
+                userInputText.GetComponent<TextMesh>().text = initialsInput;
+            }
+
+            if (keyboard.done && !saved)
+            {
+                initialsInput = keyboard.text;
+                userInputText.GetComponent<TextMesh>().text = initialsInput.Substring(0, 3);
+                UserData.userData.addNewScore(score, initialsInput.Substring(0, 3), chargeUsed);
+                UserData.userData.Save();
+                saved = true;
+            }
             return;
         }
         updateScore();
@@ -162,7 +185,6 @@ public class GameSystem : MonoBehaviour {
         checkCollisions();
         useChargeFromTouch();
         expireCharge();
-
     }
 
     #endregion Startup And Update
@@ -308,10 +330,7 @@ public class GameSystem : MonoBehaviour {
         {
             scoreText.GetComponent<TextMesh>().fontSize = 100;
             scoreText.GetComponent<TextMesh>().text = "Achievement Earned!";
-
         }
-        UserData.userData.addNewScore(score);
-        UserData.userData.Save();
         finalScoreText.AddComponent<BoxCollider>();
         restartText.GetComponent<TextMesh>().text = "Restart";
         restartText.AddComponent<BoxCollider>();
@@ -323,6 +342,11 @@ public class GameSystem : MonoBehaviour {
         playerSprite.GetComponent<CycleFrames>().loop = false;
         GliderAnimation.doAnimation = false;
         wipeCharges();
+        
+        if (((Score)UserData.userData.getHighScores().GetValue(4)).score < score)
+        {
+            keyboard = TouchScreenKeyboard.Open(initialsInput, TouchScreenKeyboardType.Default);
+        }
     }
 
     #endregion Accessors and Public Functionality
@@ -426,6 +450,7 @@ public class GameSystem : MonoBehaviour {
     {
         if (availableCharges > 0)
         {
+            chargeUsed = true;
             AudioManager.playSound(chargeSound);
             popAlert("Boost Activated");
             INVULNERABLE = true;
