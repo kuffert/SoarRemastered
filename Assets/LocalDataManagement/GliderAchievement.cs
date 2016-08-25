@@ -160,7 +160,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "Earn a score of 200";
-            skinIndex = 10;
+            skinIndex = 5;
         }
 
         public override bool checkUnlockRequirements()
@@ -184,7 +184,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "score a 75 with max boost charges";
-            skinIndex = 5;
+            skinIndex = 6;
         }
 
         public override bool checkUnlockRequirements()
@@ -208,7 +208,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "score a 100 with max boost charges";
-            skinIndex = 6;
+            skinIndex = 7;
         }
 
         public override bool checkUnlockRequirements()
@@ -232,7 +232,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "score a 125 with max boost charges";
-            skinIndex = 7;
+            skinIndex = 8;
         }
 
         public override bool checkUnlockRequirements()
@@ -256,7 +256,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "Pass 100 cliffs without boosting";
-            skinIndex = 8;
+            skinIndex = 9;
         }
 
         public override bool checkUnlockRequirements()
@@ -280,7 +280,7 @@ public abstract class GliderAchievement {
         {
             unlocked = false;
             flavorText = "Pass 100 cliffs without boosting";
-            skinIndex = 9;
+            skinIndex = 10;
         }
 
         public override bool checkUnlockRequirements()

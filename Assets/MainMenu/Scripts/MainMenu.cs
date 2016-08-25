@@ -169,7 +169,7 @@ public class MainMenu : MonoBehaviour {
                 if (UserData.userData.getAchievements()[i].isUnlocked())
                 {
                     UserData.userData.setGliderSkinIndex(i);
-                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[i]);
+                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex]);
                     UserData.userData.Save();
                 }
             }

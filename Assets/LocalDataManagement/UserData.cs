@@ -41,30 +41,31 @@ public class UserData : MonoBehaviour {
             if (achievements == null)
             {
                 GliderAchievement defaultGlider = new GliderAchievement.DefaultAchievement();
-                GliderAchievement achievementOne = new GliderAchievement.ScoreAchievementOne();
-                GliderAchievement achievementTwo = new GliderAchievement.ScoreAchievementTwo();
-                GliderAchievement achievementThree = new GliderAchievement.ScoreAchievementThree();
-                GliderAchievement achievementFour = new GliderAchievement.ScoreAchievementFour();
-                GliderAchievement achievementFive = new GliderAchievement.chargeAchievementOne();
-                GliderAchievement achievementSix = new GliderAchievement.chargeAchievementTwo();
-                GliderAchievement achievementSeven = new GliderAchievement.chargeAchievementThree();
-                GliderAchievement achievementEight = new GliderAchievement.specialAcheivementOne();
-                GliderAchievement achievementNine = new GliderAchievement.specialAchievementTwo();
-                GliderAchievement achievementTen = new GliderAchievement.ScoreAchievementFive();
-                GliderAchievement achievementEleven = new GliderAchievement.CumulativeAchievementOne();
+                GliderAchievement scoreAchievementOne = new GliderAchievement.ScoreAchievementOne();
+                GliderAchievement scoreAchievementTwo = new GliderAchievement.ScoreAchievementTwo();
+                GliderAchievement scoreAchievementThree = new GliderAchievement.ScoreAchievementThree();
+                GliderAchievement scoreAchievementFour = new GliderAchievement.ScoreAchievementFour();
+                GliderAchievement scoreAchievementFive = new GliderAchievement.ScoreAchievementFive();
+                GliderAchievement chargeAchievementOne = new GliderAchievement.chargeAchievementOne();
+                GliderAchievement chargeAchievementTwo = new GliderAchievement.chargeAchievementTwo();
+                GliderAchievement chargeAchievementThree = new GliderAchievement.chargeAchievementThree();
+                GliderAchievement specialAchievementOne = new GliderAchievement.specialAcheivementOne();
+                GliderAchievement specialAchievementTwo = new GliderAchievement.specialAchievementTwo();
+                GliderAchievement cumulativeAchievementOne = new GliderAchievement.CumulativeAchievementOne();
                 achievements = new List<GliderAchievement>();
                 achievements.Add(defaultGlider);
-                achievements.Add(achievementOne);
-                achievements.Add(achievementTwo);
-                achievements.Add(achievementThree);
-                achievements.Add(achievementFour);
-                achievements.Add(achievementFive);
-                achievements.Add(achievementSix);
-                achievements.Add(achievementSeven);
-                achievements.Add(achievementEight);
-                achievements.Add(achievementNine);
-                achievements.Add(achievementTen);
-                achievements.Add(achievementEleven);
+                achievements.Add(scoreAchievementOne);
+                achievements.Add(scoreAchievementTwo);
+                achievements.Add(scoreAchievementThree);
+                achievements.Add(scoreAchievementFour);
+                achievements.Add(scoreAchievementFive);
+                achievements.Add(chargeAchievementOne);
+                achievements.Add(chargeAchievementTwo);
+                achievements.Add(chargeAchievementThree);
+                achievements.Add(specialAchievementOne);
+                achievements.Add(specialAchievementTwo);
+                achievements.Add(cumulativeAchievementOne);
+                ADMINONLYUNLOCKALL();
             }
             userData = this;
         }

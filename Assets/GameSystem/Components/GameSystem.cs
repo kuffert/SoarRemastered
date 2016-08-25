@@ -105,6 +105,7 @@ public class GameSystem : MonoBehaviour {
         leftCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         rightCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         alertText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        userInputText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         
         // Places the player at a screen-fitting position.
         player.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .15f, 10f));
@@ -172,8 +173,8 @@ public class GameSystem : MonoBehaviour {
             if (keyboard != null && keyboard.done && !saved)
             {
                 initialsInput = keyboard.text;
-                userInputText.GetComponent<TextMesh>().text = initialsInput.Substring(0, 3);
-                UserData.userData.addNewScore(score, initialsInput.Substring(0, 3), chargeUsed);
+                userInputText.GetComponent<TextMesh>().text = initialsInput;
+                UserData.userData.addNewScore(score, initialsInput, chargeUsed);
                 UserData.userData.Save();
                 saved = true;
             }
