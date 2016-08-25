@@ -255,13 +255,13 @@ public abstract class GliderAchievement {
         public specialAcheivementOne()
         {
             unlocked = false;
-            flavorText = "Pass 100 cliffs without boosting";
+            flavorText = "Pass a total of 5000 cliffs";
             skinIndex = 9;
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (GameSystem.checkSpecialAchievementOne() && !unlocked)
+            if (UserData.userData.getCumulativeCliffsPassed() > 5000 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;
@@ -279,13 +279,13 @@ public abstract class GliderAchievement {
         public specialAchievementTwo()
         {
             unlocked = false;
-            flavorText = "Pass 100 cliffs without boosting";
+            flavorText = "Collect a total of 300 charges";
             skinIndex = 10;
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (GameSystem.checkSpecialAchievementOne() && !unlocked)
+            if (UserData.userData.getCumulativeChargesCollected() > 300 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;
@@ -308,7 +308,7 @@ public abstract class GliderAchievement {
         public override bool checkUnlockRequirements()
         {
             int totalUnlocks = 0;
-            foreach (GliderAchievement achievement in UserData.userData.getAchievements())
+            foreach (GliderAchievement achievement in UserData.userData.getAchievementGroupOne())
             {
                 totalUnlocks += achievement.isUnlocked() ? 1 : 0;
             }

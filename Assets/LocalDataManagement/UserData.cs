@@ -18,8 +18,10 @@ public class UserData : MonoBehaviour {
     private bool soundDisabled;
     private bool musicDisabled;
     private int gliderSkinIndex;
+    private int cumulativeChargesCollected;
+    private int cumulativeCliffsPassed;
 
-    private List<GliderAchievement> achievements;
+    private List<GliderAchievement> achievementGroupOne;
 
     void Awake()
     {
@@ -27,7 +29,6 @@ public class UserData : MonoBehaviour {
         {
             DontDestroyOnLoad(gameObject);
             Load();
-            //highScores = highScores == null ? new Score[5]: highScores;
             if (highScores == null)
             {
                 highScores = new Score[5];
@@ -38,7 +39,7 @@ public class UserData : MonoBehaviour {
                 highScores[4] = new Score();
             }
             
-            if (achievements == null)
+            if (achievementGroupOne == null)
             {
                 GliderAchievement defaultGlider = new GliderAchievement.DefaultAchievement();
                 GliderAchievement scoreAchievementOne = new GliderAchievement.ScoreAchievementOne();
@@ -52,20 +53,19 @@ public class UserData : MonoBehaviour {
                 GliderAchievement specialAchievementOne = new GliderAchievement.specialAcheivementOne();
                 GliderAchievement specialAchievementTwo = new GliderAchievement.specialAchievementTwo();
                 GliderAchievement cumulativeAchievementOne = new GliderAchievement.CumulativeAchievementOne();
-                achievements = new List<GliderAchievement>();
-                achievements.Add(defaultGlider);
-                achievements.Add(scoreAchievementOne);
-                achievements.Add(scoreAchievementTwo);
-                achievements.Add(scoreAchievementThree);
-                achievements.Add(scoreAchievementFour);
-                achievements.Add(scoreAchievementFive);
-                achievements.Add(chargeAchievementOne);
-                achievements.Add(chargeAchievementTwo);
-                achievements.Add(chargeAchievementThree);
-                achievements.Add(specialAchievementOne);
-                achievements.Add(specialAchievementTwo);
-                achievements.Add(cumulativeAchievementOne);
-                ADMINONLYUNLOCKALL();
+                achievementGroupOne = new List<GliderAchievement>();
+                achievementGroupOne.Add(defaultGlider);
+                achievementGroupOne.Add(scoreAchievementOne);
+                achievementGroupOne.Add(scoreAchievementTwo);
+                achievementGroupOne.Add(scoreAchievementThree);
+                achievementGroupOne.Add(scoreAchievementFour);
+                achievementGroupOne.Add(scoreAchievementFive);
+                achievementGroupOne.Add(chargeAchievementOne);
+                achievementGroupOne.Add(chargeAchievementTwo);
+                achievementGroupOne.Add(chargeAchievementThree);
+                achievementGroupOne.Add(specialAchievementOne);
+                achievementGroupOne.Add(specialAchievementTwo);
+                achievementGroupOne.Add(cumulativeAchievementOne);
             }
             userData = this;
         }
@@ -80,15 +80,40 @@ public class UserData : MonoBehaviour {
     public bool getSoundDisabled() { return soundDisabled; }
     public bool getMusicDisabled() { return musicDisabled; }
     public int getGliderSkinIndex() { return gliderSkinIndex;  }
+    public int getCumulativeChargesCollected() { return cumulativeChargesCollected; }
+    public int getCumulativeCliffsPassed() { return cumulativeCliffsPassed; }
 
-    public List<GliderAchievement> getAchievements() { return achievements; }
+    public List<GliderAchievement> getAchievementGroupOne() { return achievementGroupOne; }
 
     public void setHighScores(Score[] highScores) { this.highScores = highScores; }
     public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
     public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
     public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
+    public void setCUmulativeChargesCollected(int cumulativeChargesCollected) { this.cumulativeChargesCollected = cumulativeChargesCollected; }
+    public void setCumulativeCliffsPassed(int cumulativeCliffsPassed) { this.cumulativeCliffsPassed = cumulativeCliffsPassed; }
 
-    public void setAchievementsList(List<GliderAchievement> achievements) { this.achievements = achievements; }
+    public void setAchievementGroupOne(List<GliderAchievement> achievements) { this.achievementGroupOne = achievements; }
+
+    /// <summary>
+    /// Increases the user's total cliffs passed.
+    /// </summary>
+    /// <param name="additionalCliffsPassed"></param>
+    public void updateCumulativeCliffsPassed(int additionalCliffsPassed)
+    {
+        cumulativeCliffsPassed += additionalCliffsPassed;
+        userData.Save();
+    }
+
+    /// <summary>
+    /// Increases the user's total charges collected
+    /// </summary>
+    /// <param name="additionalChargesCollected"></param>
+    public void updateCumulativeChargesCollected(int additionalChargesCollected)
+    {
+        cumulativeChargesCollected += additionalChargesCollected;
+        userData.Save();
+    }
+
 
     /// <summary>
     /// Return a single string of all high scores.
@@ -169,7 +194,7 @@ public class UserData : MonoBehaviour {
     public bool checkAllAchievements()
     {
         bool finalOutcome = false;
-        foreach(GliderAchievement achievement in achievements)
+        foreach(GliderAchievement achievement in achievementGroupOne)
         {
             bool outcome = achievement.checkUnlockRequirements();
             finalOutcome = finalOutcome ? finalOutcome : outcome;
@@ -179,7 +204,7 @@ public class UserData : MonoBehaviour {
 
     private void ADMINONLYUNLOCKALL()
     {
-        foreach (GliderAchievement achievement in achievements)
+        foreach (GliderAchievement achievement in achievementGroupOne)
         {
             achievement.ADMINONLYUNLOCKACHIEVEMENT();
         }
@@ -223,21 +248,28 @@ public class UserData : MonoBehaviour {
         private bool soundDisabled;
         private bool musicDisabled;
         private int gliderSkinIndex;
-        private List<GliderAchievement> achievements;
+        private int cumulativeChargesCollected;
+        private int cumulativeCliffsPassed;
+
+        private List<GliderAchievement> achievementGroupOne;
 
         public Score[] getHighScores() { return highScores; }
         public bool getSoundDisabled() { return soundDisabled; }
         public bool getMusicDisabled() { return musicDisabled; }
         public int getGliderSkinIndex() { return gliderSkinIndex; }
+        public int getCumulativeChargesCollected() { return cumulativeChargesCollected; }
+        public int getCumulativeCliffsPassed() { return cumulativeCliffsPassed; }
 
-        public List<GliderAchievement> getAchievements() { return achievements; }
+        public List<GliderAchievement> getAchievementGroupOne() { return achievementGroupOne; }
 
         public void setHighScores(Score[] highScores) { this.highScores = highScores; }
         public void setSoundDisabled(bool soundDisabled) { this.soundDisabled = soundDisabled; }
         public void setMusicDisabled(bool musicDisabled) { this.musicDisabled = musicDisabled; }
         public void setGliderSkinIndex(int gliderSkinIndex) { this.gliderSkinIndex = gliderSkinIndex; }
+        public void setCUmulativeChargesCollected(int cumulativeChargesCollected) { this.cumulativeChargesCollected = cumulativeChargesCollected; }
+        public void setCumulativeCliffsPassed(int cumulativeCliffsPassed) { this.cumulativeCliffsPassed = cumulativeCliffsPassed; }
 
-        public void setAchievementsList(List<GliderAchievement> achievements) { this.achievements = achievements; }
+        public void setAchievementGroupOne(List<GliderAchievement> achievements) { this.achievementGroupOne = achievements; }
 
         /// <summary>
         /// Copies the user's data to the local storage class.
@@ -249,8 +281,10 @@ public class UserData : MonoBehaviour {
             setSoundDisabled(userData.getSoundDisabled());
             setMusicDisabled(userData.getMusicDisabled());
             setGliderSkinIndex(userData.getGliderSkinIndex());
+            setCUmulativeChargesCollected(userData.getCumulativeChargesCollected());
+            setCumulativeCliffsPassed(userData.getCumulativeCliffsPassed());
 
-            setAchievementsList(userData.getAchievements());
+            setAchievementGroupOne(userData.getAchievementGroupOne());
         }
 
         /// <summary>
@@ -263,7 +297,10 @@ public class UserData : MonoBehaviour {
             userData.setSoundDisabled(getSoundDisabled());
             userData.setMusicDisabled(getMusicDisabled());
             userData.setGliderSkinIndex(getGliderSkinIndex());
-            userData.setAchievementsList(getAchievements());
+            userData.setCUmulativeChargesCollected(getCumulativeChargesCollected());
+            userData.setCumulativeCliffsPassed(getCumulativeCliffsPassed());
+
+            userData.setAchievementGroupOne(getAchievementGroupOne());
         }
     }
 }

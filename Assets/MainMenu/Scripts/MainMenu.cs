@@ -19,6 +19,8 @@ public class MainMenu : MonoBehaviour {
     public GameObject musicDisabledText;
     public GameObject glider;
     public GameObject gliderDescriptionText;
+    public GameObject chargesCollectedText;
+    public GameObject cliffsPassedText;
     public AudioSource menuSelectSound;
     public AudioSource menuBackSound;
     public AudioSource musicSelectSound;
@@ -45,6 +47,8 @@ public class MainMenu : MonoBehaviour {
         scoresList.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         musicDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         soundDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
+        chargesCollectedText.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .45f, 10f));
+        cliffsPassedText.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .45f, 10f));
         titleText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         startText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -56,6 +60,8 @@ public class MainMenu : MonoBehaviour {
         musicDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         soundDisabledText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         creditsList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        chargesCollectedText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        cliffsPassedText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         gliderButtons = new List<GameObject>();
     }
 
@@ -106,7 +112,7 @@ public class MainMenu : MonoBehaviour {
     {
         if (showCredits)
         {
-            creditsList.GetComponent<TextMesh>().text = "Freesound Credits:\nFins\nJalastram\nDland\nBertrof\nPlasterbrain\nTheMusicalNomad";
+            creditsList.GetComponent<TextMesh>().text = "Freesound Credits:\nFins\nJalastram\nDland\nBertrof\nPlasterbrain\nTheMusicalNomad\nLittleRobotSoundFactory";
         }
 
         else
@@ -123,12 +129,12 @@ public class MainMenu : MonoBehaviour {
         float xLoc = .18f;
         float yLoc = .7f;
         UserData.userData.Load();
-        for (int i = 0; i < UserData.userData.getAchievements().Count; i++)
+        for (int i = 0; i < UserData.userData.getAchievementGroupOne().Count; i++)
         {
             GameObject achievementSprite = new GameObject();
-            if (UserData.userData.getAchievements()[i].isUnlocked())
+            if (UserData.userData.getAchievementGroupOne()[i].isUnlocked())
             {
-                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex][0];
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievementGroupOne()[i].skinIndex][0];
             }
             else
             {
@@ -165,11 +171,11 @@ public class MainMenu : MonoBehaviour {
         {
             if (gliderButtons[i].GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
             {
-                gliderDescriptionText.GetComponent<TextMesh>().text = UserData.userData.getAchievements()[i].flavorText;
-                if (UserData.userData.getAchievements()[i].isUnlocked())
+                gliderDescriptionText.GetComponent<TextMesh>().text = UserData.userData.getAchievementGroupOne()[i].flavorText;
+                if (UserData.userData.getAchievementGroupOne()[i].isUnlocked())
                 {
                     UserData.userData.setGliderSkinIndex(i);
-                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievements()[i].skinIndex]);
+                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievementGroupOne()[i].skinIndex]);
                     UserData.userData.Save();
                 }
             }
@@ -211,6 +217,8 @@ public class MainMenu : MonoBehaviour {
                     AudioManager.playSound(menuSelectSound);
                     showScores = true;
                     scoresText.GetComponent<TextMesh>().text = "Back";
+                    chargesCollectedText.GetComponent<TextMesh>().text = "Charges\nCollected\n" + UserData.userData.getCumulativeChargesCollected();
+                    cliffsPassedText.GetComponent<TextMesh>().text = "Cliffs\nPassed\n" + UserData.userData.getCumulativeCliffsPassed();
                     startText.GetComponent<TextMesh>().text = "";
                     startText.GetComponent<BoxCollider>().enabled = false;
                     optionsText.GetComponent<TextMesh>().text = "";
@@ -226,6 +234,8 @@ public class MainMenu : MonoBehaviour {
                     AudioManager.playSound(menuBackSound);
                     showScores = false;
                     scoresText.GetComponent<TextMesh>().text = "Scores";
+                    chargesCollectedText.GetComponent<TextMesh>().text = "";
+                    cliffsPassedText.GetComponent<TextMesh>().text = "";
                     startText.GetComponent<TextMesh>().text = "Start";
                     startText.GetComponent<BoxCollider>().enabled = true;
                     optionsText.GetComponent<TextMesh>().text = "Options";

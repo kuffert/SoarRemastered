@@ -26,6 +26,7 @@ public class GameSystem : MonoBehaviour {
     public AudioSource cliffPassedSound;
     public AudioSource coinPickupSound;
     public AudioSource gameOverSound;
+    public AudioSource achievementSound;
     public AudioSource chargeSound;
     public AudioSource chargePickupSound;
     public AudioSource chargeFailSound;
@@ -60,7 +61,8 @@ public class GameSystem : MonoBehaviour {
     private static int availableCharges;
     private static int maximumCharges;
     private bool chargeUsed;
-    private static int cliffsPassedWithoutBoost;
+    public int cliffsPassed;
+    public int chargesCollected;
     private static bool specialAchievementOneCheck;
     private static float invulnDurationTime;
     public static float remainingInvulnTime;
@@ -124,6 +126,8 @@ public class GameSystem : MonoBehaviour {
         populateCharges();
         maximumCharges = maxCharges;
         specialAchievementOneCheck = false;
+        cliffsPassed = 0;
+        chargesCollected = 0;
 
         gameOver = false;
         PAUSE = false;
@@ -338,11 +342,20 @@ public class GameSystem : MonoBehaviour {
         PAUSE = true;
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
+        UserData.userData.updateCumulativeCliffsPassed(cliffsPassed);
+        UserData.userData.updateCumulativeChargesCollected(chargesCollected);
         bool anyAchievementsEarned = UserData.userData.checkAllAchievements();
         if (anyAchievementsEarned)
         {
             scoreText.GetComponent<TextMesh>().fontSize = 100;
-            scoreText.GetComponent<TextMesh>().text = "Achievement Earned!";
+            scoreText.GetComponent<TextMesh>().text = "New Glider Unlocked!";
+            AudioManager.playSound(achievementSound);
+
+        }
+        else
+        {
+
+            AudioManager.playSound(gameOverSound);
         }
         finalScoreText.AddComponent<BoxCollider>();
         restartText.GetComponent<TextMesh>().text = "Restart";
@@ -471,10 +484,8 @@ public class GameSystem : MonoBehaviour {
             charges[availableCharges - 1].GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.emptyCharge;
             availableCharges = (availableCharges <= 1) ? 0 : availableCharges - 1;
             storedSpawnRate = currentSpawnRate;
-            storedSpeed = currentSpeed;
-            //currentSpawnRate /= 2;// score < maxDifficultyScore ? initialSpawnRate - (maxDifficultyScore - score) / maxDifficultyScore : maxSpawnRate;
-            currentSpeed *= 2f;
-            cliffsPassedWithoutBoost = 0;
+            storedSpeed = currentSpeed; currentSpeed *= 2f;
+            cliffsPassed = 0;
         }
         else
         {
@@ -561,18 +572,6 @@ public class GameSystem : MonoBehaviour {
     #endregion Charge System Functionality
 
     #region Achievement Functionality
-
-    /// <summary>
-    /// Increments the number of cliffs passed without using a boost
-    /// </summary>
-    public void incrementCliffsPassedAndCheckAchievement()
-    {
-        cliffsPassedWithoutBoost++;
-        if (cliffsPassedWithoutBoost >= 100)
-        {
-            specialAchievementOneCheck = true;
-        }
-    }
 
 
     #endregion Achievement Functionality

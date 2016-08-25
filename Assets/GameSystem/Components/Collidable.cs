@@ -171,6 +171,7 @@ public class Charge : Collidable
         gameSystem.removeCollidable(this);
         MonoBehaviour.Destroy(collidableGameObject);
         indexOfCollidable--;
+        gameSystem.chargesCollected++;
         gameSystem.pickupCharge();
     }
 
@@ -217,7 +218,6 @@ public class LeftCliff : Collidable
     {
         if (!GameSystem.INVULNERABLE)
         {
-            AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
         }
         else if (gameSystem.getRemainingInvulnTime() <= .25f)
@@ -236,7 +236,7 @@ public class LeftCliff : Collidable
         gameSystem.leftCliffText.GetComponent<TextFadeOut>().fade = true;
         AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
-        gameSystem.incrementCliffsPassedAndCheckAchievement();
+        gameSystem.cliffsPassed++;
     }
 }
 
@@ -271,7 +271,6 @@ public class RightCliff : Collidable
     {
         if (!GameSystem.INVULNERABLE)
         {
-            AudioManager.playSound(gameSystem.gameOverSound);
             gameSystem.enableGameOver();
         }
         else if (gameSystem.getRemainingInvulnTime() <= .25f)
@@ -290,7 +289,7 @@ public class RightCliff : Collidable
         gameSystem.rightCliffText.GetComponent<TextFadeOut>().fade = true;
         AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
-        gameSystem.incrementCliffsPassedAndCheckAchievement();
+        gameSystem.cliffsPassed++;
     }
 }
 
