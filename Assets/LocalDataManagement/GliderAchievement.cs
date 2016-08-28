@@ -175,16 +175,40 @@ public abstract class GliderAchievement {
     }
 
     /// <summary>
+    /// Achievement to score over an absurdly high threshold.
+    /// </summary>
+    [Serializable]
+    public class ScoreAchievementSix : GliderAchievement
+    {
+        public ScoreAchievementSix()
+        {
+            unlocked = false;
+            flavorText = "Earn a score of 250";
+            skinIndex = 6;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 250 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
     /// The fifth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
     /// </summary>
     [Serializable]
-    public class chargeAchievementOne : GliderAchievement
+    public class boostAchievementOne : GliderAchievement
     {
-        public chargeAchievementOne()
+        public boostAchievementOne()
         {
             unlocked = false;
             flavorText = "score a 75 with max boost charges";
-            skinIndex = 6;
+            skinIndex = 0;
         }
 
         public override bool checkUnlockRequirements()
@@ -202,13 +226,13 @@ public abstract class GliderAchievement {
     /// The sixth achievement is a glider earned by achieving a score above a medium threshold with maximum boost charges.
     /// </summary>
     [Serializable]
-    public class chargeAchievementTwo : GliderAchievement
+    public class boostAchievementTwo : GliderAchievement
     {
-        public chargeAchievementTwo()
+        public boostAchievementTwo()
         {
             unlocked = false;
             flavorText = "score a 100 with max boost charges";
-            skinIndex = 7;
+            skinIndex = 1;
         }
 
         public override bool checkUnlockRequirements()
@@ -226,13 +250,13 @@ public abstract class GliderAchievement {
     /// The seventh achievement is a glider earned by achieving a score above a high threshold with maximum boost charges. 
     /// </summary>
     [Serializable]
-    public class chargeAchievementThree : GliderAchievement
+    public class boostAchievementThree : GliderAchievement
     {
-        public chargeAchievementThree()
+        public boostAchievementThree()
         {
             unlocked = false;
             flavorText = "score a 125 with max boost charges";
-            skinIndex = 8;
+            skinIndex = 2;
         }
 
         public override bool checkUnlockRequirements()
@@ -247,16 +271,40 @@ public abstract class GliderAchievement {
     }
 
     /// <summary>
+    /// Achievement to earn 150 and end with full boost charges.
+    /// </summary>
+    [Serializable]
+    public class boostAchievementFour : GliderAchievement
+    {
+        public boostAchievementFour()
+        {
+            unlocked = false;
+            flavorText = "Score a 150 with max boost charges";
+            skinIndex = 3;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (GameSystem.getScore() >= 150 && GameSystem.chargesMaxed() && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
     /// The first special achiement is tied to Blondeterouge youtube channel.
     /// </summary>
     [Serializable]
-    public class specialAcheivementOne : GliderAchievement
+    public class CumulativeAchievementOne : GliderAchievement
     {
-        public specialAcheivementOne()
+        public CumulativeAchievementOne()
         {
             unlocked = false;
             flavorText = "Pass a total of 5000 cliffs";
-            skinIndex = 9;
+            skinIndex = 0;
         }
 
         public override bool checkUnlockRequirements()
@@ -274,13 +322,13 @@ public abstract class GliderAchievement {
     /// The second special achievement is tied to Diesel Smith.
     /// </summary>
     [Serializable]
-    public class specialAchievementTwo : GliderAchievement
+    public class CumulativeAchievementTwo : GliderAchievement
     {
-        public specialAchievementTwo()
+        public CumulativeAchievementTwo()
         {
             unlocked = false;
             flavorText = "Collect a total of 300 charges";
-            skinIndex = 10;
+            skinIndex = 1;
         }
 
         public override bool checkUnlockRequirements()
@@ -294,28 +342,89 @@ public abstract class GliderAchievement {
         }
     }
 
+    /// <summary>
+    /// Achievement to collect ten other glider skins.
+    /// </summary>
     [Serializable]
-    public class CumulativeAchievementOne : GliderAchievement
+    public class CumulativeAchievementThree : GliderAchievement
     {
-        public CumulativeAchievementOne()
+        public CumulativeAchievementThree()
         {
             unlocked = false;
-            flavorText = "Unlock all other Gliders";
-            skinIndex = 11;
+            flavorText = "Unlock ten other Gliders";
+            skinIndex = 2;
             multiframe = true;
         }
 
         public override bool checkUnlockRequirements()
         {
             int totalUnlocks = 0;
-            foreach (GliderAchievement achievement in UserData.userData.getAchievementGroupOne())
+            foreach (GliderAchievement achievement in UserData.userData.getscoreAchievements())
+            {
+                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+            }
+            foreach (GliderAchievement achievement in UserData.userData.getBoostAchievements())
+            { 
+                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+            }
+            foreach (GliderAchievement achievement in UserData.userData.getCumulativeAchievements())
             {
                 totalUnlocks += achievement.isUnlocked() ? 1 : 0;
             }
 
-            unlocked = unlocked || totalUnlocks >= 10;
+            unlocked = totalUnlocks >= 10 && !unlocked;
             return unlocked;
         }
     }
+
+    /// <summary>
+    /// Achievement to collect 600 charges.
+    /// </summary>
+    [Serializable]
+    public class CumulativeAchievementFour : GliderAchievement
+    {
+        public CumulativeAchievementFour()
+        {
+            unlocked = false;
+            flavorText = "Collect a total of 600 charges";
+            skinIndex = 3;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (UserData.userData.getCumulativeChargesCollected() > 600 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Achievement to pass 10000 cliffs.
+    /// </summary>
+    [Serializable]
+    public class CumulativeAchievementFive : GliderAchievement
+    {
+        public CumulativeAchievementFive()
+        {
+            unlocked = false;
+            flavorText = "Pass a total of 10000 cliffs";
+            skinIndex = 4;
+        }
+
+        public override bool checkUnlockRequirements()
+        {
+            if (UserData.userData.getCumulativeCliffsPassed() > 10000 && !unlocked)
+            {
+                unlocked = true;
+                return unlocked;
+            }
+            return false;
+        }
+    }
 }
+
+
 

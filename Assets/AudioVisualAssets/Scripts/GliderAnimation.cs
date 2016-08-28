@@ -9,7 +9,7 @@ public class GliderAnimation : MonoBehaviour {
     void Start()
     {
         doAnimation = true;
-        spriteCycle = SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()];
+        spriteCycle = UserData.userData.getSpriteFramesByEnum()[UserData.userData.getGliderSkinIndex()];
     }
 
     void Update()

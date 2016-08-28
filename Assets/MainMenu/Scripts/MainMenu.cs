@@ -21,6 +21,8 @@ public class MainMenu : MonoBehaviour {
     public GameObject gliderDescriptionText;
     public GameObject chargesCollectedText;
     public GameObject cliffsPassedText;
+    public GameObject categoryLabel;
+    public GameObject gliderSelector;
     public AudioSource menuSelectSound;
     public AudioSource menuBackSound;
     public AudioSource musicSelectSound;
@@ -32,23 +34,26 @@ public class MainMenu : MonoBehaviour {
     private bool beginGameReady = false;
     private bool showGliderSkins = false;
     private List<GameObject> gliderButtons;
+    private List<GameObject> achievementCategories;
+    private E_AchievementType selectedCategory = E_AchievementType.Score;
 
     void Start () {
         UserData.userData.Load();
         AudioManager.playMusic(GetComponent<AudioSource>());
-        GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()]);
+        GliderAnimation.setFrameCycle(UserData.userData.getSpriteFramesByEnum()[UserData.userData.getGliderSkinIndex()]);
         titleText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .90f, 10f));
         startText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .45f, 10f));
         scoresText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .35f, 10f));
         optionsText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .25f, 10f));
         gliderSkinsText.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .1f, 10f));
-        gliderDescriptionText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
+        gliderDescriptionText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .65f, 10f));
         creditsText.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .1f, 10f));
         scoresList.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         musicDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         soundDisabledText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         chargesCollectedText.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .45f, 10f));
         cliffsPassedText.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .45f, 10f));
+        categoryLabel.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .7f, 10f));
         titleText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         startText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         scoresText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -62,7 +67,9 @@ public class MainMenu : MonoBehaviour {
         creditsList.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         chargesCollectedText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         cliffsPassedText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        categoryLabel.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         gliderButtons = new List<GameObject>();
+        achievementCategories = new List<GameObject>();
     }
 
     void Update () {
@@ -121,20 +128,56 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+
+    /// <summary>
+    /// Shows the selectable categories
+    /// </summary>
+    public void showAchievementCategories()
+    {
+        GameObject scoreCat = new GameObject();
+        GameObject boostCat = new GameObject();
+        GameObject cumulativeCat = new GameObject();
+
+        scoreCat.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.scoreCategorySprite;
+        boostCat.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.boostCategorySprite;
+        cumulativeCat.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.cumulativeCategorySprite;
+
+        scoreCat.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        boostCat.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        cumulativeCat.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+
+        scoreCat.AddComponent<BoxCollider>();
+        boostCat.AddComponent<BoxCollider>();
+        cumulativeCat.AddComponent<BoxCollider>();
+
+        scoreCat.transform.position = Tools.viewToWorldVector(new Vector3(.25f, .8f, 10f));
+        boostCat.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
+        cumulativeCat.transform.position = Tools.viewToWorldVector(new Vector3(.75f, .8f, 10f));
+
+        achievementCategories.Add(scoreCat);
+        achievementCategories.Add(boostCat);
+        achievementCategories.Add(cumulativeCat);
+
+        categoryLabel.GetComponent<TextMesh>().text = selectedCategory.ToString() + " Achievements";
+        setSelectedCategorySprite();
+    }
+
     /// <summary>
     /// Show the locked and unlocked glider skins.
     /// </summary>
     private void showAchievements()
     {
+        List<GliderAchievement> achievements = getAchievementsFromEnum();
+        List<List<Sprite>> gliderSprites = getSpritesFromEnum();
         float xLoc = .18f;
-        float yLoc = .7f;
+        float yLoc = .5f;
         UserData.userData.Load();
-        for (int i = 0; i < UserData.userData.getAchievementGroupOne().Count; i++)
+        for (int i = 0; i < achievements.Count; i++)
         {
             GameObject achievementSprite = new GameObject();
-            if (UserData.userData.getAchievementGroupOne()[i].isUnlocked())
+            if (achievements[i].isUnlocked())
             {
-                achievementSprite.AddComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievementGroupOne()[i].skinIndex][0];
+                achievementSprite.AddComponent<SpriteRenderer>().sprite = gliderSprites[achievements[i].skinIndex][0];
             }
             else
             {
@@ -144,9 +187,81 @@ public class MainMenu : MonoBehaviour {
             achievementSprite.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
             achievementSprite.transform.position = Tools.viewToWorldVector(new Vector3(xLoc, yLoc, 10.0f));
             xLoc = xLoc >= .8f ? .18f : xLoc + .22f;
-            yLoc = i >= 3 ? .5f : .7f;
-            yLoc = i >= 7 ? .3f : yLoc;
+            yLoc = i >= 3 ? .3f : .5f;
             gliderButtons.Add(achievementSprite);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the list of achievements associated with the achievement type enum.
+    /// </summary>
+    /// <returns></returns>
+    public List<GliderAchievement> getAchievementsFromEnum()
+    {
+        switch (selectedCategory)
+        {
+            case E_AchievementType.Score:
+                return (UserData.userData.getscoreAchievements());
+                
+            case E_AchievementType.Boost:
+                return (UserData.userData.getBoostAchievements());
+                
+            case E_AchievementType.Cumulative:
+                return (UserData.userData.getCumulativeAchievements());
+                
+            default:
+                Debug.Log("shit");
+                return (UserData.userData.getscoreAchievements());     
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the list of sprite frames based on the category enum.
+    /// </summary>
+    /// <returns></returns>
+    public List<List<Sprite>> getSpritesFromEnum()
+    {
+        switch (selectedCategory)
+        {
+            case E_AchievementType.Score:
+                return (SpriteAssets.spriteAssets.scoreGliders);
+
+            case E_AchievementType.Boost:
+                return (SpriteAssets.spriteAssets.boostGliders);
+
+            case E_AchievementType.Cumulative:
+                return (SpriteAssets.spriteAssets.cumulativeGliders);
+
+            default:
+                return (SpriteAssets.spriteAssets.scoreGliders);
+        }
+    }
+
+    /// <summary>
+    /// Returns the selected version of the category image.
+    /// </summary>
+    /// <returns></returns>
+    public void setSelectedCategorySprite()
+    {
+        switch (selectedCategory)
+        {
+            case E_AchievementType.Score:
+                achievementCategories[0].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.selectedScoreCategorySprite);
+                achievementCategories[1].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.boostCategorySprite);
+                achievementCategories[2].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.cumulativeCategorySprite);
+                break;
+
+            case E_AchievementType.Boost:
+                achievementCategories[0].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.scoreCategorySprite);
+                achievementCategories[1].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.selectedBoostCategorySprite);
+                achievementCategories[2].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.cumulativeCategorySprite);
+                break;
+
+            case E_AchievementType.Cumulative:
+                achievementCategories[0].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.scoreCategorySprite);
+                achievementCategories[1].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.boostCategorySprite);
+                achievementCategories[2].GetComponent<SpriteRenderer>().sprite = (SpriteAssets.spriteAssets.selectedCumulativeCategorySprite);
+                break;
         }
     }
 
@@ -155,7 +270,8 @@ public class MainMenu : MonoBehaviour {
     /// </summary>
     private void unshowAchievements()
     {
-        foreach(GameObject achievement in gliderButtons)
+        gliderSelector.GetComponent<SpriteRenderer>().sprite = null;
+        foreach (GameObject achievement in gliderButtons)
         {
             Destroy(achievement);
         }
@@ -163,19 +279,60 @@ public class MainMenu : MonoBehaviour {
     }
 
     /// <summary>
+    /// unshow the category buttons.
+    /// </summary>
+    private void unshowCategories()
+    {
+        foreach(GameObject category in achievementCategories)
+        {
+            Destroy(category);
+        }
+        categoryLabel.GetComponent<TextMesh>().text = "";
+        achievementCategories.Clear();
+    }
+
+    /// <summary>
+    /// Updates the currently selected category
+    /// </summary>
+    /// <param name="ray"></param>
+    /// <param name="hit"></param>
+    private void updateSelectedCategory(Ray ray, RaycastHit hit)
+    {
+        for (int i = 0; i < achievementCategories.Count; i++)
+        {
+            if (achievementCategories[i].GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
+            {
+                selectedCategory = (E_AchievementType)i;
+                gliderDescriptionText.GetComponent<TextMesh>().text = "";
+                categoryLabel.GetComponent<TextMesh>().text = selectedCategory.ToString() + " Achievements";
+                gliderSelector.GetComponent<SpriteRenderer>().sprite = null;
+                setSelectedCategorySprite();
+                unshowAchievements();
+                showAchievements();
+            }
+        }
+    }
+
+    /// <summary>
     /// Updates the currently selected skin.
     /// </summary>
     private void updateSelectedSkin(Ray ray, RaycastHit hit)
     {
-        for(int i = 0; i < gliderButtons.Count; i++)
+        List<GliderAchievement> achievements = getAchievementsFromEnum();
+        List<List<Sprite>> sprites = getSpritesFromEnum();
+        
+        for (int i = 0; i < gliderButtons.Count; i++)
         {
             if (gliderButtons[i].GetComponent<Collider>().Raycast(ray, out hit, 100.0f))
             {
-                gliderDescriptionText.GetComponent<TextMesh>().text = UserData.userData.getAchievementGroupOne()[i].flavorText;
-                if (UserData.userData.getAchievementGroupOne()[i].isUnlocked())
+                gliderDescriptionText.GetComponent<TextMesh>().text = achievements[i].flavorText;
+                gliderSelector.GetComponent<SpriteRenderer>().sprite = SpriteAssets.spriteAssets.gliderSelector;
+                gliderSelector.transform.position = gliderButtons[i].transform.position;
+                if (achievements[i].isUnlocked())
                 {
                     UserData.userData.setGliderSkinIndex(i);
-                    GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getAchievementGroupOne()[i].skinIndex]);
+                    UserData.userData.setGliderEnum(selectedCategory);
+                    GliderAnimation.setFrameCycle(sprites[achievements[i].skinIndex]);
                     UserData.userData.Save();
                 }
             }
@@ -327,6 +484,7 @@ public class MainMenu : MonoBehaviour {
                     scoresText.GetComponent<BoxCollider>().enabled = false;
                     creditsText.GetComponent<TextMesh>().text = "";
                     creditsText.GetComponent<BoxCollider>().enabled = false;
+                    showAchievementCategories();
                     showAchievements();
                 }
 
@@ -345,9 +503,11 @@ public class MainMenu : MonoBehaviour {
                     creditsText.GetComponent<TextMesh>().text = "Credits";
                     creditsText.GetComponent<BoxCollider>().enabled = true;
                     unshowAchievements();
+                    unshowCategories();
                 }
             }
 
+            updateSelectedCategory(ray, hit);
             updateSelectedSkin(ray, hit);
 
             if (soundDisabledText.GetComponent<Collider>().Raycast(ray, out hit, 100.0F) && showOptions)

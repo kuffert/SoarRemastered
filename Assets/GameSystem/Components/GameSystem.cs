@@ -115,10 +115,10 @@ public class GameSystem : MonoBehaviour {
 
 	void Start ()
     {
-        GliderAnimation.doAnimation = true;
-        GliderAnimation.setFrameCycle(SpriteAssets.spriteAssets.allGliders[UserData.userData.getGliderSkinIndex()]);
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         UserData.userData.Load();
+        GliderAnimation.doAnimation = true;
+        GliderAnimation.setFrameCycle(UserData.userData.getSpriteFramesByEnum()[UserData.userData.getGliderSkinIndex()]);
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         AudioManager.playMusic(GetComponent<AudioSource>());
 
         collidables = new List<Collidable>();
@@ -344,17 +344,41 @@ public class GameSystem : MonoBehaviour {
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
         UserData.userData.updateCumulativeCliffsPassed(cliffsPassed);
         UserData.userData.updateCumulativeChargesCollected(chargesCollected);
-        bool anyAchievementsEarned = UserData.userData.checkAllAchievements();
-        if (anyAchievementsEarned)
+        List<Sprite> glidersEarned = UserData.userData.checkAllAchievements();
+
+        if (glidersEarned.Count > 0)
         {
             scoreText.GetComponent<TextMesh>().fontSize = 100;
             scoreText.GetComponent<TextMesh>().text = "New Glider Unlocked!";
             AudioManager.playSound(achievementSound);
+            
+            float yLoc = .8f;
+            int index = 0;
+            float interval = 1.0f / glidersEarned.Count;
+            float xLoc = interval / 2;
+            foreach (Sprite glider in glidersEarned)
+            {
+                GameObject newGlider = new GameObject();
+                newGlider.AddComponent<SpriteRenderer>().sprite = glider;
+                newGlider.GetComponent<SpriteRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+                newGlider.transform.localScale = new Vector3(.75f, .75f, 1f);
+
+                float xPlacement = xLoc + index * interval;
+
+                newGlider.transform.position = Tools.viewToWorldVector(new Vector3(xPlacement, yLoc, 10.0f));
+                index++;
+            }
 
         }
+        else if (score > UserData.userData.getHighScores()[4].score)
+        {
+            scoreText.GetComponent<TextMesh>().fontSize = 150;
+            scoreText.GetComponent<TextMesh>().text = "New High Score!";
+            AudioManager.playSound(achievementSound);
+        }
+
         else
         {
-
             AudioManager.playSound(gameOverSound);
         }
         finalScoreText.AddComponent<BoxCollider>();
