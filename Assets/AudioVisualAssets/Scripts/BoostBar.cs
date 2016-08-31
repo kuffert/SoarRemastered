@@ -19,8 +19,6 @@ public class BoostBar : MonoBehaviour {
 
             float scaleRatio = GameSystem.retrieveRemainingInvulnTimeRatio() * startingXScale;
 
-            Debug.Log(scaleRatio);
-
             transform.localScale = new Vector3(scaleRatio, .5f, 1f);
             
         }

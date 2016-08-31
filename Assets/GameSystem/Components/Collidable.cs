@@ -236,6 +236,7 @@ public class LeftCliff : Collidable
         gameSystem.leftCliffText.GetComponent<TextFadeOut>().fade = true;
         AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
+        gameSystem.cliffsPassedWithoutBoost++;
         gameSystem.cliffsPassed++;
     }
 }
@@ -289,6 +290,7 @@ public class RightCliff : Collidable
         gameSystem.rightCliffText.GetComponent<TextFadeOut>().fade = true;
         AudioManager.playSound(gameSystem.cliffPassedSound);
         gameSystem.increaseScore();
+        gameSystem.cliffsPassedWithoutBoost++;
         gameSystem.cliffsPassed++;
     }
 }

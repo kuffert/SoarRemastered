@@ -12,7 +12,6 @@ public abstract class GliderAchievement {
     private bool unlocked;
     public string flavorText;
     public int skinIndex;
-    public bool multiframe = false;
 
     /// <summary>
     /// Checks if an achievement has been unlocked. Returns false if default or if a new achievement was not earned.
@@ -303,13 +302,13 @@ public abstract class GliderAchievement {
         public CumulativeAchievementOne()
         {
             unlocked = false;
-            flavorText = "Pass a total of 5000 cliffs";
+            flavorText = "Pass a total of 3000 cliffs";
             skinIndex = 0;
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (UserData.userData.getCumulativeCliffsPassed() > 5000 && !unlocked)
+            if (UserData.userData.getCumulativeCliffsPassed() > 3000 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;
@@ -327,13 +326,13 @@ public abstract class GliderAchievement {
         public CumulativeAchievementTwo()
         {
             unlocked = false;
-            flavorText = "Collect a total of 300 charges";
+            flavorText = "Collect a total of 250 charges";
             skinIndex = 1;
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (UserData.userData.getCumulativeChargesCollected() > 300 && !unlocked)
+            if (UserData.userData.getCumulativeChargesCollected() > 250 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;
@@ -353,32 +352,34 @@ public abstract class GliderAchievement {
             unlocked = false;
             flavorText = "Unlock ten other Gliders";
             skinIndex = 2;
-            multiframe = true;
         }
 
         public override bool checkUnlockRequirements()
         {
             int totalUnlocks = 0;
-            foreach (GliderAchievement achievement in UserData.userData.getscoreAchievements())
+            if (!unlocked)
             {
-                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+                foreach (GliderAchievement achievement in UserData.userData.getscoreAchievements())
+                {
+                    totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+                }
+                foreach (GliderAchievement achievement in UserData.userData.getBoostAchievements())
+                {
+                    totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+                }
+                foreach (GliderAchievement achievement in UserData.userData.getCumulativeAchievements())
+                {
+                    totalUnlocks += achievement.isUnlocked() ? 1 : 0;
+                }
+                unlocked = totalUnlocks >= 10;
+                return unlocked;
             }
-            foreach (GliderAchievement achievement in UserData.userData.getBoostAchievements())
-            { 
-                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
-            }
-            foreach (GliderAchievement achievement in UserData.userData.getCumulativeAchievements())
-            {
-                totalUnlocks += achievement.isUnlocked() ? 1 : 0;
-            }
-
-            unlocked = totalUnlocks >= 10 && !unlocked;
-            return unlocked;
+            else return false;
         }
     }
 
     /// <summary>
-    /// Achievement to collect 600 charges.
+    /// Achievement to collect 500 charges.
     /// </summary>
     [Serializable]
     public class CumulativeAchievementFour : GliderAchievement
@@ -386,13 +387,13 @@ public abstract class GliderAchievement {
         public CumulativeAchievementFour()
         {
             unlocked = false;
-            flavorText = "Collect a total of 600 charges";
-            skinIndex = 3;
+            flavorText = "Collect a total of 500 charges";
+            skinIndex = 3;  
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (UserData.userData.getCumulativeChargesCollected() > 600 && !unlocked)
+            if (UserData.userData.getCumulativeChargesCollected() > 500 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;
@@ -402,7 +403,7 @@ public abstract class GliderAchievement {
     }
 
     /// <summary>
-    /// Achievement to pass 10000 cliffs.
+    /// Achievement to pass 6000 cliffs.
     /// </summary>
     [Serializable]
     public class CumulativeAchievementFive : GliderAchievement
@@ -410,13 +411,13 @@ public abstract class GliderAchievement {
         public CumulativeAchievementFive()
         {
             unlocked = false;
-            flavorText = "Pass a total of 10000 cliffs";
+            flavorText = "Pass a total of 6000 cliffs";
             skinIndex = 4;
         }
 
         public override bool checkUnlockRequirements()
         {
-            if (UserData.userData.getCumulativeCliffsPassed() > 10000 && !unlocked)
+            if (UserData.userData.getCumulativeCliffsPassed() > 6000 && !unlocked)
             {
                 unlocked = true;
                 return unlocked;

@@ -23,7 +23,7 @@ public static class Tools {
     /// <returns></returns>
     public static Vector3 calculateRandomYVector()
     {
-        float yLoc = Random.Range(1, 10) / 10f;
+        float yLoc = Random.Range(-3, 13) / 10f;
         return Camera.main.ViewportToWorldPoint(new Vector3(0f, yLoc, 10f));
     }
 

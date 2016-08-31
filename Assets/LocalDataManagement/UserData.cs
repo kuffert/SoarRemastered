@@ -21,6 +21,8 @@ public class UserData : MonoBehaviour {
     private E_AchievementType gliderEnum;
     private int cumulativeChargesCollected;
     private int cumulativeCliffsPassed;
+    private int gamesSinceAdPlayed;
+    private bool showAds;
 
     private GliderAchievement defaultGlider;
     private GliderAchievement scoreAchievementOne;
@@ -60,7 +62,7 @@ public class UserData : MonoBehaviour {
                 highScores[3] = new Score();
                 highScores[4] = new Score();
             }
-
+            showAds = true;
             loadScoreAchievements();
             loadBoostAchievements();
             loadCumulativeAchievements();
@@ -80,6 +82,8 @@ public class UserData : MonoBehaviour {
     public E_AchievementType getGliderEnum() { return gliderEnum; }
     public int getCumulativeChargesCollected() { return cumulativeChargesCollected; }
     public int getCumulativeCliffsPassed() { return cumulativeCliffsPassed; }
+    public int getGamesSinceAdPlayed() { return gamesSinceAdPlayed; }
+    public bool getShowAds() { return showAds; }
 
     public GliderAchievement getScoreAchievementOne() { return scoreAchievementOne; }
     public GliderAchievement getScoreAchievementTwo() { return scoreAchievementTwo; }
@@ -110,6 +114,8 @@ public class UserData : MonoBehaviour {
     public void setGliderEnum(E_AchievementType gliderEnum) { this.gliderEnum = gliderEnum; }
     public void setCUmulativeChargesCollected(int cumulativeChargesCollected) { this.cumulativeChargesCollected = cumulativeChargesCollected; }
     public void setCumulativeCliffsPassed(int cumulativeCliffsPassed) { this.cumulativeCliffsPassed = cumulativeCliffsPassed; }
+    public void setGamesSinceAdPlayed(int gamesSinceAdPlayed) { this.gamesSinceAdPlayed = gamesSinceAdPlayed; }
+    public void setShowAds(bool showAds) { this.showAds = showAds; }
 
     public void setScoreAchievementOne(GliderAchievement scoreOne) { scoreAchievementOne = scoreOne; }
     public void setScoreAchievementTwo(GliderAchievement scoreTwo) { scoreAchievementTwo = scoreTwo; }
@@ -392,6 +398,8 @@ public class UserData : MonoBehaviour {
         private E_AchievementType gliderEnum;
         private int cumulativeChargesCollected;
         private int cumulativeCliffsPassed;
+        private int gamesSinceAdPlayed;
+        private bool showAds;
 
         private GliderAchievement defaultGlider;
         private GliderAchievement scoreAchievementOne;
@@ -423,6 +431,8 @@ public class UserData : MonoBehaviour {
         public E_AchievementType getGliderEnum() { return gliderEnum; }
         public int getCumulativeChargesCollected() { return cumulativeChargesCollected; }
         public int getCumulativeCliffsPassed() { return cumulativeCliffsPassed; }
+        public int getGamesSinceAdPlayed() { return gamesSinceAdPlayed; }
+        public bool getShowAds() { return showAds; }
 
         public GliderAchievement getScoreAchievementOne() { return scoreAchievementOne; }
         public GliderAchievement getScoreAchievementTwo() { return scoreAchievementTwo; }
@@ -449,6 +459,8 @@ public class UserData : MonoBehaviour {
         public void setGliderEnum(E_AchievementType gliderEnum) { this.gliderEnum = gliderEnum; }
         public void setCUmulativeChargesCollected(int cumulativeChargesCollected) { this.cumulativeChargesCollected = cumulativeChargesCollected; }
         public void setCumulativeCliffsPassed(int cumulativeCliffsPassed) { this.cumulativeCliffsPassed = cumulativeCliffsPassed; }
+        public void setGamesSinceAdPlayed(int gamesSinceAdPlayed) { this.gamesSinceAdPlayed = gamesSinceAdPlayed; }
+        public void setShowAds(bool showAds) { this.showAds = showAds; }
 
         public void setScoreAchievementOne(GliderAchievement scoreOne) { scoreAchievementOne = scoreOne; }
         public void setScoreAchievementTwo(GliderAchievement scoreTwo) { scoreAchievementTwo = scoreTwo; }
@@ -481,6 +493,8 @@ public class UserData : MonoBehaviour {
             setGliderEnum(userData.getGliderEnum());
             setCUmulativeChargesCollected(userData.getCumulativeChargesCollected());
             setCumulativeCliffsPassed(userData.getCumulativeCliffsPassed());
+            setGamesSinceAdPlayed(userData.getGamesSinceAdPlayed());
+            setShowAds(userData.getShowAds());
 
             setScoreAchievementOne(userData.getScoreAchievementOne());
             setScoreAchievementTwo(userData.getScoreAchievementTwo());
@@ -514,6 +528,8 @@ public class UserData : MonoBehaviour {
             userData.setGliderEnum(getGliderEnum());
             userData.setCUmulativeChargesCollected(getCumulativeChargesCollected());
             userData.setCumulativeCliffsPassed(getCumulativeCliffsPassed());
+            userData.setGamesSinceAdPlayed(getGamesSinceAdPlayed());
+            userData.setShowAds(getShowAds());
 
             userData.setScoreAchievementOne(getScoreAchievementOne());
             userData.setScoreAchievementTwo(getScoreAchievementTwo());

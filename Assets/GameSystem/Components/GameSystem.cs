@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Advertisements;
+using UnityEngine.Analytics;
 
 /// <summary>
 /// GameSystem handles all information pertaining to a single game instance. 
@@ -20,6 +22,7 @@ public class GameSystem : MonoBehaviour {
     public GameObject rightCliffText;
     public GameObject alertText;
     public GameObject userInputText;
+    public GameObject initialsText;
 
     private TouchScreenKeyboard keyboard;
 
@@ -61,6 +64,8 @@ public class GameSystem : MonoBehaviour {
     private static int availableCharges;
     private static int maximumCharges;
     private bool chargeUsed;
+    private int chargesUsed;
+    public int cliffsPassedWithoutBoost;
     public int cliffsPassed;
     public int chargesCollected;
     private static bool specialAchievementOneCheck;
@@ -87,6 +92,7 @@ public class GameSystem : MonoBehaviour {
     private List<GameObject> charges;
     private string initialsInput = "AAA";
     private bool saved = false;
+    private int numberOfGamesPerAd = 4;
 
     #region Startup And Update
     void Awake ()
@@ -100,6 +106,7 @@ public class GameSystem : MonoBehaviour {
         rightCliffText.transform.position = Tools.viewToWorldVector(new Vector3(.9f, .075f, 10f));
         alertText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .8f, 10f));
         userInputText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .6f, 10f));
+        initialsText.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .65f, 10f));
         scoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         finalScoreText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         restartText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
@@ -108,6 +115,7 @@ public class GameSystem : MonoBehaviour {
         rightCliffText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         alertText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         userInputText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
+        initialsText.GetComponent<MeshRenderer>().sortingOrder = SortingLayers.TEXTLAYER;
         
         // Places the player at a screen-fitting position.
         player.transform.position = Tools.viewToWorldVector(new Vector3(.5f, .15f, 10f));
@@ -126,7 +134,7 @@ public class GameSystem : MonoBehaviour {
         populateCharges();
         maximumCharges = maxCharges;
         specialAchievementOneCheck = false;
-        cliffsPassed = 0;
+        cliffsPassedWithoutBoost = 0;
         chargesCollected = 0;
 
         gameOver = false;
@@ -179,6 +187,11 @@ public class GameSystem : MonoBehaviour {
                 initialsInput = keyboard.text;
                 userInputText.GetComponent<TextMesh>().text = initialsInput;
                 UserData.userData.addNewScore(score, initialsInput, chargeUsed);
+                if (UserData.userData.getShowAds() && UserData.userData.getGamesSinceAdPlayed() > numberOfGamesPerAd)
+                {
+                    ShowAd();
+                    UserData.userData.setGamesSinceAdPlayed(1);
+                }
                 UserData.userData.Save();
                 saved = true;
             }
@@ -192,6 +205,17 @@ public class GameSystem : MonoBehaviour {
         checkCollisions();
         useChargeFromTouch();
         expireCharge();
+    }
+
+    /// <summary>
+    /// Shows an add to the user. Should only be called in a safe-place, i.e. after a game ends.
+    /// </summary>
+    public void ShowAd()
+    {
+        if (Advertisement.IsReady())
+        {
+            Advertisement.Show();
+        }
     }
 
     #endregion Startup And Update
@@ -342,14 +366,16 @@ public class GameSystem : MonoBehaviour {
         PAUSE = true;
         scoreText.GetComponent<TextMesh>().text = "Game Over";
         finalScoreText.GetComponent<TextMesh>().text = "Final Score:" + score;
-        UserData.userData.updateCumulativeCliffsPassed(cliffsPassed);
+        UserData.userData.updateCumulativeCliffsPassed(cliffsPassedWithoutBoost);
         UserData.userData.updateCumulativeChargesCollected(chargesCollected);
         List<Sprite> glidersEarned = UserData.userData.checkAllAchievements();
 
         if (glidersEarned.Count > 0)
         {
+            string text = glidersEarned.Count > 1? "New Gliders Unlocked!" : "New Glider Unlocked!";
             scoreText.GetComponent<TextMesh>().fontSize = 100;
-            scoreText.GetComponent<TextMesh>().text = "New Glider Unlocked!";
+            scoreText.GetComponent<TextMesh>().text = text;
+            initialsText.GetComponent<TextMesh>().text = "Enter Initials:";
             AudioManager.playSound(achievementSound);
             
             float yLoc = .8f;
@@ -374,13 +400,20 @@ public class GameSystem : MonoBehaviour {
         {
             scoreText.GetComponent<TextMesh>().fontSize = 150;
             scoreText.GetComponent<TextMesh>().text = "New High Score!";
+            initialsText.GetComponent<TextMesh>().text = "Enter Initials:";
             AudioManager.playSound(achievementSound);
         }
 
         else
         {
             AudioManager.playSound(gameOverSound);
+            if (UserData.userData.getShowAds() && UserData.userData.getGamesSinceAdPlayed() > numberOfGamesPerAd)
+            {
+                ShowAd();
+                UserData.userData.setGamesSinceAdPlayed(1);
+            }
         }
+        
         finalScoreText.AddComponent<BoxCollider>();
         restartText.GetComponent<TextMesh>().text = "Restart";
         restartText.AddComponent<BoxCollider>();
@@ -397,6 +430,17 @@ public class GameSystem : MonoBehaviour {
         {
             keyboard = TouchScreenKeyboard.Open(initialsInput, TouchScreenKeyboardType.Default);
         }
+        UserData.userData.setGamesSinceAdPlayed(UserData.userData.getGamesSinceAdPlayed() + 1);
+        Analytics.CustomEvent("Game Over", new Dictionary<string, object>
+        {
+            {"Final Score", score},
+            {"Charges Remaining", chargesCollected},
+            {"Charges Used", chargesUsed},
+            {"Cliffs Passed", cliffsPassed},
+            {"Boost Used", chargeUsed},
+            {"Ads On", UserData.userData.getShowAds() }
+        });
+        UserData.userData.Save();
     }
 
     #endregion Accessors and Public Functionality
@@ -437,13 +481,6 @@ public class GameSystem : MonoBehaviour {
             {
                 currentSpeed += new Vector3(0, speedDifficultyIncrease, 0);
             }
-
-            /*
-            Debug.Log(currentSpawnRate);
-            Debug.Log(currentCliffGap);
-            Debug.Log(currentThreshhold);
-            Debug.Log(currentSpeed.y);
-            */
         }
     }
 
@@ -501,6 +538,7 @@ public class GameSystem : MonoBehaviour {
         if (availableCharges > 0)
         {
             chargeUsed = true;
+            chargesUsed++;
             AudioManager.playSound(chargeSound);
             popAlert("Boost Activated");
             INVULNERABLE = true;
@@ -509,7 +547,7 @@ public class GameSystem : MonoBehaviour {
             availableCharges = (availableCharges <= 1) ? 0 : availableCharges - 1;
             storedSpawnRate = currentSpawnRate;
             storedSpeed = currentSpeed; currentSpeed *= 2f;
-            cliffsPassed = 0;
+            cliffsPassedWithoutBoost = 0;
         }
         else
         {
